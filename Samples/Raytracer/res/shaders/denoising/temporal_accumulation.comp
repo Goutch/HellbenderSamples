@@ -1,14 +1,8 @@
 #extension GL_GOOGLE_include_directive: require
-#include "../print.glsl"
 #include "../raytracing/data_structures.glsl"
 layout(local_size_x = 4, local_size_y = 4, local_size_z = 1) in;
 
 
-#ifndef HISTORY_COUNT
-#define HISTORY_COUNT 8
-#endif
-
-#ifdef HISTORY_COUNT
 layout (binding =0, set = 0) uniform FrameUBO {
     Frame data;
 } frame;
@@ -25,7 +19,6 @@ layout (binding = 6, set = 0) uniform CameraHistory
 
 layout(binding = 7, set = 0, rgba32f) writeonly uniform image2D outputImage;
 
-#endif
 vec4 getHistoryWorldPosition(int i, vec2 uv, ivec2 image_coord)
 {
     ivec2 resolution = imageSize(historyAlbedo[i]);
@@ -56,10 +49,7 @@ void main()
     vec4 albedo = imageLoad(historyAlbedo[current_history_index], image_coord);
     vec4 irradiance = imageLoad(historyIrradiance[current_history_index], image_coord);
     //vec4 world_position = imageLoad(historyPosition[current_history_index], image_coord);
-    if (gl_GlobalInvocationID.x == (resolution.x) / 2 && gl_GlobalInvocationID.y == (resolution.y / 2))
-    {
-        PRINT("--------------------START----------------------");
-    }
+
     vec4 world_position = getHistoryWorldPosition(current_history_index, uv, image_coord);
 
 

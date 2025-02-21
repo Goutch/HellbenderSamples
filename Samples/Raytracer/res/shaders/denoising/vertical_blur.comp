@@ -1,0 +1,29 @@
+#version 460
+#extension GL_GOOGLE_include_directive: require
+#include "blur.glsl"
+layout(local_size_x = LAYER_COUNT, local_size_y = RANGE, local_size_z = 1) in;
+
+void main()
+{
+    int layer = int(gl_LocalInvocationID.x);
+    int start_coord = int(gl_WorkGroupID.y * gl_WorkGroupSize.y) - (RANGE);
+    ivec2 size = imageSize(inputImage);
+    if (gl_GlobalInvocationID.x>=size.x || gl_GlobalInvocationID.y>=size.y || gl_GlobalInvocationID.x<0 || gl_GlobalInvocationID.y<0)
+    {
+        return;
+    }
+    int shared_start_pos = int(gl_LocalInvocationID.y *3);
+    shared_start_pos+=layer*RANGE*3;
+    const int frame_index = int(mod(frame.data.index, HISTORY_COUNT));
+    for (int i = 0; i < 3; ++i) {
+        int sample_coord = shared_start_pos + i;
+        int coord = start_coord+int(gl_LocalInvocationID.y *3)+i;
+
+        samples[sample_coord] = imageLoad(inputImage, ivec2(gl_GlobalInvocationID.x, coord));
+        normalDepths[sample_coord] = imageLoad(historyNormalDepth[frame_index], ivec2(gl_GlobalInvocationID.x, coord));
+    }
+    barrier();
+
+    int center = int(gl_LocalInvocationID.y + RANGE) + (layer*RANGE * 3);
+    blur(center);
+}

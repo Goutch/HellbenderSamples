@@ -5,11 +5,11 @@
 
 class RaytracingScene;
 
-class Raytracer{
+class Raytracer {
 	RaytracingScene *scene;
 	RaytracerResources raytracing_resources;
 public:
-	Raytracer();
+	Raytracer(uint32_t history_count);
 
 	~Raytracer();
 
@@ -22,5 +22,5 @@ public:
 	RaytracerResources &getRaytracingResources();
 
 private:
-	void createPrimaryRaytracingResources();
+	void createPrimaryRaytracingResources(uint32_t history_count);
 };

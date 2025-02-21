@@ -1,8 +1,8 @@
 #include "Raytracer.h"
 #include "RaytracingScene.h"
 
-Raytracer::Raytracer() {
-	createPrimaryRaytracingResources();
+Raytracer::Raytracer(uint32_t history_count) {
+	createPrimaryRaytracingResources(history_count);
 
 	raytracing_resources.pipeline_instance->setImageArray("blue_noise", raytracing_resources.st_blue_noise.data(), raytracing_resources.st_blue_noise.size());
 }
@@ -59,8 +59,9 @@ void Raytracer::setSceneUniforms(SceneResources &scene_resources) {
 }
 
 
-void Raytracer::createPrimaryRaytracingResources() {
+void Raytracer::createPrimaryRaytracingResources(uint32_t history_count) {
 	ShaderInfo shader_info{};
+	shader_info.preamble = "#define HISTORY_COUNT " + std::to_string(history_count) + "\n";
 	shader_info.stage = SHADER_STAGE_RAY_GEN;
 	shader_info.path = "shaders/raytracing/raygen/raygen.glsl";
 	raytracing_resources.raygen_shader = Resources::createShader(shader_info);

@@ -78,15 +78,15 @@ void RaytracingScene::createScene() {
 	camera_entity.get<Camera>()->active = false;
 	camera_entity.get<Transform>()->translate(vec3(0, 1, 0));
 	camera_entity.get<Transform>()->rotate(vec3(0, 2.1416, 0));
-	CameraController* controller = camera_entity.attach<CameraController>();
+	CameraController *controller = camera_entity.attach<CameraController>();
 	Camera *camera = camera_entity.get<Camera>();
 	setCameraEntity(camera_entity);
 	gbuffer_resources.history_camera.resize(HISTORY_COUNT, {camera_entity.get<Transform>()->world(), camera->projection});
 }
 
 RaytracingScene::RaytracingScene() {
-	raytracer = new Raytracer();
-	denoiser = new Denoiser();
+	raytracer = new Raytracer(HISTORY_COUNT);
+	denoiser = new Denoiser(HISTORY_COUNT);
 
 	createGBuffer(Graphics::getDefaultRenderTarget()->getResolution().x, Graphics::getDefaultRenderTarget()->getResolution().y);
 

@@ -7,7 +7,7 @@ class Denoiser {
 private :
 	DenoisingResources denoiser_resources;
 public:
-	Denoiser();
+	Denoiser(uint32_t history_count);
 	~Denoiser();
 	void setGBufferUniforms(GBufferResources &gbuffer_resources);
 

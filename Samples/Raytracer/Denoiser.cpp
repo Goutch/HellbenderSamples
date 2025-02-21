@@ -44,23 +44,16 @@ void Denoiser::setGBufferUniforms(GBufferResources &gbuffer_resources) {
 
 	denoiser_resources.temporal_accumulation_instance->setImage("outputImage", gbuffer_resources.denoiser_temporal_accumulation_texture);
 
-	denoiser_resources.vertical_blur_instance->setImageArray("historyAlbedo", gbuffer_resources.history_albedo.data(), gbuffer_resources.history_albedo.size());
 	denoiser_resources.vertical_blur_instance->setImageArray("historyNormalDepth", gbuffer_resources.history_normal_depth.data(), gbuffer_resources.history_normal_depth.size());
-	denoiser_resources.vertical_blur_instance->setImageArray("historyMotion", gbuffer_resources.history_motion.data(), gbuffer_resources.history_motion.size());
-	denoiser_resources.vertical_blur_instance->setImageArray("historyPosition", gbuffer_resources.history_position.data(), gbuffer_resources.history_position.size());
-
-
-	denoiser_resources.horizontal_blur_instance->setImageArray("historyAlbedo", gbuffer_resources.history_albedo.data(), gbuffer_resources.history_albedo.size());
 	denoiser_resources.horizontal_blur_instance->setImageArray("historyNormalDepth", gbuffer_resources.history_normal_depth.data(), gbuffer_resources.history_normal_depth.size());
-	denoiser_resources.horizontal_blur_instance->setImageArray("historyMotion", gbuffer_resources.history_motion.data(), gbuffer_resources.history_motion.size());
-	denoiser_resources.horizontal_blur_instance->setImageArray("historyPosition", gbuffer_resources.history_position.data(), gbuffer_resources.history_position.size());
 }
 
-Denoiser::Denoiser() {
+Denoiser::Denoiser(uint32_t history_count) {
 	//Accumulation
 	ShaderInfo shader_info{};
 	shader_info.stage = SHADER_STAGE_COMPUTE;
 	shader_info.path = "shaders/denoising/temporal_accumulation.comp";
+	shader_info.preamble = "#define HISTORY_COUNT " + std::to_string(history_count) + "\n";
 	denoiser_resources.temporal_accumulation_shader = Resources::createShader(shader_info);
 
 	ComputePipelineInfo accumulation_compute_pipeline_info{};
@@ -73,12 +66,10 @@ Denoiser::Denoiser() {
 
 
 	//BLUR
-	shader_info.path = "shaders/denoising/vertical.comp";
-
 	shader_info.stage = SHADER_STAGE_COMPUTE;
-	shader_info.path = "shaders/denoising/horizontal.comp";
+	shader_info.path = "shaders/denoising/horizontal_blur.comp";
 	denoiser_resources.horizontal_blur_shader = Resources::createShader(shader_info);
-	shader_info.path = "shaders/denoising/vertical.comp";
+	shader_info.path = "shaders/denoising/vertical_blur.comp";
 	denoiser_resources.vertical_blur_shader = Resources::createShader(shader_info);
 
 	ComputePipelineInfo blur_compute_pipeline_info{};
@@ -109,3 +100,5 @@ Denoiser::~Denoiser() {
 	delete denoiser_resources.vertical_blur_shader;
 
 }
+
+
