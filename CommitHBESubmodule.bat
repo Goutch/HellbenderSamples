@@ -4,7 +4,6 @@ setlocal
 :: Set the submodule path (Change this to your actual submodule path)
 set SUBMODULE_PATH=HBE/
 
-
 :: Check if a commit message is provided
 if "%~1"=="" (
     echo Usage: commit_submodule.bat "commit message"
@@ -19,14 +18,22 @@ if not exist "%SUBMODULE_PATH%\.git" (
     exit /b 1
 )
 
-
-
-
 :: Change to the submodule directory
 cd /d "%SUBMODULE_PATH%" || exit /b 1
 
 :: Ensure we are on the master branch
-git checkout master 2>nul || git checkout -b master origin/master
+git checkout master 2>nul
+if %errorlevel% neq 0 (
+    echo Switching to master branch failed. Trying to create it from remote...
+    git checkout -b master origin/master
+)
+
+:: Pull latest changes from remote
+git pull --rebase origin master
+if %errorlevel% neq 0 (
+    echo Failed to pull latest changes. Resolve conflicts if needed.
+    exit /b 1
+)
 
 :: Add and commit changes
 git add .
