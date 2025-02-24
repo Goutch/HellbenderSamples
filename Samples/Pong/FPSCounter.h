@@ -23,7 +23,7 @@ namespace Pong {
 		float total_width;
 		float total_height;
 
-		RenderTarget *render_target;
+		RasterizationTarget *render_target;
 		Scene *scene;
 
 		vec4 red = vec4(251.0f / 255.0f, 73.0f / 255.0f, 52.0f / 255.0f, 1);
@@ -68,7 +68,7 @@ namespace Pong {
 
 		}
 
-		void onResolutionChange(RenderTarget *render_target) {
+		void onResolutionChange(RasterizationTarget *render_target) {
 			text_entity.get<Transform>()->setLocalScale(vec3(20));
 
 			text_entity.get<Transform>()->setPosition(vec3(
@@ -78,7 +78,7 @@ namespace Pong {
 		}
 
 
-		FPSCounter(Scene &scene, RenderTarget *render_target) {
+		FPSCounter(Scene &scene, RasterizationTarget *render_target) {
 			this->scene = &scene;
 			scene.onUpdate.subscribe(this, &FPSCounter::update);
 			render_target->onResolutionChange.subscribe(this, &FPSCounter::onResolutionChange);
@@ -136,12 +136,12 @@ namespace Pong {
 			pipeline_info.vertex_shader = text_vertex_shader;
 			pipeline_info.fragment_shader = text_fragment_shader;
 			pipeline_info.flags = 0;
-			pipeline_info.render_target = render_target;
+			pipeline_info.rasterization_target = render_target;
 			text_pipeline = Resources::createRasterizationPipeline(pipeline_info);
 
 
 			RasterizationPipelineInstanceInfo pipeline_instance_info{};
-			pipeline_instance_info.flags = GRAPHIC_PIPELINE_INSTANCE_FLAG_NONE;
+			pipeline_instance_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
 
 			pipeline_instance_info.rasterization_pipeline = text_pipeline;
 			text_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);

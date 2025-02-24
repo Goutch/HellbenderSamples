@@ -27,7 +27,7 @@ namespace Pong {
 		Shader *ball_vertex_shader;
 		Shader *ball_fragment_shader;
 	public:
-		BallSystem(PongGameScene *scene, PongGameState &game_state, AudioClipInstance *bounce_sound, RenderTarget *render_target);
+		BallSystem(PongGameScene *scene, PongGameState &game_state, AudioClipInstance *bounce_sound, RasterizationTarget *render_target);
 
 		~BallSystem();
 

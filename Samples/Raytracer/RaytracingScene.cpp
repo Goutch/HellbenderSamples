@@ -196,7 +196,7 @@ void RaytracingScene::createGBuffer(uint32_t width, uint32_t height) {
 	gbuffer_resources.denoiser_irradiance_vertical_blur_texture = Resources::createImage(info);
 }
 
-void RaytracingScene::onResolutionChange(RenderTarget *rt) {
+void RaytracingScene::onResolutionChange(RasterizationTarget *rt) {
 	createGBuffer(rt->getResolution().x, rt->getResolution().y);
 
 

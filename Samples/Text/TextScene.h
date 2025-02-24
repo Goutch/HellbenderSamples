@@ -91,7 +91,7 @@ private:
 		text_pipeline = Resources::createRasterizationPipeline(pipeline_info);
 
 		RasterizationPipelineInstanceInfo pipeline_instance_info{};
-		pipeline_instance_info.flags = GRAPHIC_PIPELINE_INSTANCE_FLAG_NONE;
+		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
 
 		pipeline_instance_info.rasterization_pipeline = text_pipeline;
 		text_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);

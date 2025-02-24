@@ -115,12 +115,12 @@ namespace Pong {
 		pipeline_info.vertex_shader = vertex_shader;
 		pipeline_info.fragment_shader = fragment_shader;
 		pipeline_info.flags = RASTERIZATION_PIPELINE_FLAG_NONE;
-		pipeline_info.render_target = render_target;
+		pipeline_info.rasterization_target = render_target;
 		pipeline = Resources::createRasterizationPipeline(pipeline_info);
 
 		RasterizationPipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.rasterization_pipeline = pipeline;
-		pipeline_instance_info.flags = GRAPHIC_PIPELINE_INSTANCE_FLAG_NONE;
+		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
 
 		paddle_left_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
 		paddle_right_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
@@ -147,7 +147,7 @@ namespace Pong {
 		render_target->setResolution(window->getWidth(), window->getHeight());
 	}
 
-	void PongGameScene::onRenderTargetResolutionChange(RenderTarget *render_target) {
+	void PongGameScene::onRenderTargetResolutionChange(RasterizationTarget *render_target) {
 		Entity camera_entity = getCameraEntity();
 		Camera2D *camera = camera_entity.get<Camera2D>();
 

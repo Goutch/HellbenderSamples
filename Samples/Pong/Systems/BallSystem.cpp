@@ -6,7 +6,7 @@
 #include "PaddleSystem.h"
 #include "PongGame.h"
 namespace Pong {
-	BallSystem::BallSystem(PongGameScene *scene, PongGameState &game_state, AudioClipInstance *bounce_sound, RenderTarget *render_target) : System(scene) {
+	BallSystem::BallSystem(PongGameScene *scene, PongGameState &game_state, AudioClipInstance *bounce_sound, RasterizationTarget *render_target) : System(scene) {
 		this->game_scene = scene;
 		this->game_state = &game_state;
 		this->bounce_sound = bounce_sound;
@@ -43,13 +43,13 @@ namespace Pong {
 		pipeline_info.fragment_shader = ball_fragment_shader;
 		pipeline_info.attribute_infos = vertex_attribute_infos;
 		pipeline_info.attribute_info_count = 2;
-		pipeline_info.render_target = render_target;
+		pipeline_info.rasterization_target = render_target;
 
 		ball_pipeline = Resources::createRasterizationPipeline(pipeline_info);
 
 		RasterizationPipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.rasterization_pipeline = ball_pipeline;
-		pipeline_info.flags = GRAPHIC_PIPELINE_INSTANCE_FLAG_NONE;
+		pipeline_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
 		ball_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
 
 		vec4 color = {0xfa/255.0f, 0xbd/255.0f, 0x2f/255.0f, 1};

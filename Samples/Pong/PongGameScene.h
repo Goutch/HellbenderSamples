@@ -22,7 +22,7 @@ namespace Pong {
 		RasterizationPipelineInstance *paddle_right_pipeline_instance;
 		Entity paddle_left_entity;
 		Entity paddle_right_entity;
-		RenderTarget *render_target;
+		RasterizationTarget *render_target;
 		AudioClip *bounce_sound;
 		AudioClipInstance *bounce_sound_instance;
 	public:
@@ -38,7 +38,7 @@ namespace Pong {
 
 		Area &getArea();
 
-		void onRenderTargetResolutionChange(RenderTarget *render_target);
+		void onRenderTargetResolutionChange(RasterizationTarget *render_target);
 
 		Entity createPaddle(vec3 position, KEY up_key, KEY down_key, RasterizationPipelineInstance *paddle_pipeline_instance);
 

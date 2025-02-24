@@ -58,7 +58,7 @@ public:
 
 	void createGBuffer(uint32_t width, uint32_t height);
 
-	void onResolutionChange(RenderTarget *rt);
+	void onResolutionChange(RasterizationTarget *rt);
 
 	void loadAssets();
 

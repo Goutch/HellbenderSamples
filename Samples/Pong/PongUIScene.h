@@ -11,7 +11,7 @@ namespace Pong {
 	class PongUIScene : public Scene {
 		const float SCORE_TEXT_SIZE = 50.0f;
 		FPSCounter *fps_counter;
-		RenderTarget *render_target;
+		RasterizationTarget *render_target;
 		PongGameState *game_state;
 
 		Font *font;
