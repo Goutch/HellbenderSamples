@@ -73,12 +73,9 @@ public:
 		for (int i = n - 1; i >= 1; --i) {
 			setParent(entities[i - 1], entities[i]);
 		}
-
 	}
 
 	void createResources() {
-
-
 		MeshInfo triangle_info{};
 		triangle_info.attribute_info_count = 1;
 		triangle_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
