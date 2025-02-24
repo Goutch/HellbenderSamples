@@ -35,7 +35,7 @@ public:
 
 		RasterizationPipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.rasterization_pipeline = pipeline;
-		pipeline_instance_info.flags = GRAPHIC_PIPELINE_INSTANCE_FLAG_NONE;
+		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_FLAG_NONE;
 		RasterizationPipelineInstance *pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
 
 		pipeline_instances.push_back(pipeline_instance);
@@ -107,14 +107,14 @@ public:
 		pipeline_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
 		pipeline_info.vertex_shader = vertex_shader;
 		pipeline_info.fragment_shader = fragment_shader;
-		pipeline_info.render_target = Graphics::getDefaultRenderTarget();
+		pipeline_info.rasterization_target = Graphics::getDefaultRenderTarget();
 		pipeline_info.flags = RASTERIZATION_PIPELINE_FLAG_NO_DEPTH_TEST;
 
 		pipeline = Resources::createRasterizationPipeline(pipeline_info);
 
 		RasterizationPipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.rasterization_pipeline = pipeline;
-		pipeline_instance_info.flags = GRAPHIC_PIPELINE_INSTANCE_FLAG_NONE;
+		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_FLAG_NONE;
 	}
 
 };
