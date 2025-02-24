@@ -11,8 +11,8 @@ class OrderedRenderingScene : public Scene {
 	Shader *fragment_shader;
 	RasterizationPipeline *pipeline;
 	std::vector<RasterizationPipelineInstance *> pipeline_instances;
+	\
 
-	RenderTarget *render_target;
 public:
 
 	OrderedRenderingScene() {
@@ -28,13 +28,7 @@ public:
 		for (auto pipeline_instance: pipeline_instances) {
 			delete pipeline_instance;
 		}
-		delete render_target;
 
-	}
-
-
-	Image *getMainCameraTexture() override {
-		return render_target->getFramebufferTexture(Graphics::getCurrentFrame());
 	}
 
 	Entity createTriangle(vec3 position, vec4 color) {
@@ -52,7 +46,6 @@ public:
 		triangle_renderer->mesh = triangle_mesh;
 		triangle_renderer->pipeline_instance = pipeline_instance;
 		triangle_renderer->ordered = true;
-		triangle_renderer->layer = 1;
 		triangle_entity.get<Transform>()->setPosition(position);
 
 		return triangle_entity;
@@ -62,38 +55,28 @@ public:
 
 	void setupScene() {
 		Entity camera_entity = createEntity3D();
-		PixelCamera *camera = camera_entity.attach<PixelCamera>();
-		camera->setRenderTarget(render_target);
-		camera->layer_mask = 1;
+		Camera2D *camera = camera_entity.attach<Camera2D>();
 		setCameraEntity(camera_entity);
 
-		std::vector<Entity> entitities;
-		int n = 10;
+		std::vector<Entity> entities;
+		int n = 50;
 		for (int i = 0; i < n; ++i) {
-			Entity triangle = createTriangle(vec3(Random::floatRange(0, render_target->getResolution().x), Random::floatRange(0, render_target->getResolution().y), 0),
+			Entity triangle = createTriangle(vec3(0.2, 0, 0),
 			                                 vec4(Random::floatRange(0, 1),
 			                                      Random::floatRange(0, 1),
 			                                      Random::floatRange(0, 1),
 			                                      1));
 
-			entitities.push_back(triangle);
-			triangle.get<Transform>()->setWorldScale(vec3(Random::floatRange(10, 300), Random::floatRange(10, 300), 1));
+			entities.push_back(triangle);
+		}
+		entities[n-1].get<Transform>()->setPosition(vec3(-5, 0, 0));
+		for (int i = n - 1; i >= 1; --i) {
+			setParent(entities[i - 1], entities[i]);
 		}
 
-		printSceneHierarchy();
-	}
-
-	void onWindowSizeChange(Window *window) {
-		render_target->setResolution(window->getWidth(), window->getHeight());
 	}
 
 	void createResources() {
-		RenderTargetInfo render_target_info{};
-		render_target_info.clear_color = vec4(0, 0, 0, 0);
-		render_target_info.width = Graphics::getWindow()->getWidth();
-		render_target_info.height = Graphics::getWindow()->getHeight();
-		render_target_info.flags = RENDER_TARGET_FLAG_CLEAR_COLOR | RENDER_TARGET_FLAG_COLOR_ATTACHMENT;
-		render_target = Resources::createRenderTarget(render_target_info);
 
 
 		MeshInfo triangle_info{};
@@ -127,7 +110,7 @@ public:
 		pipeline_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
 		pipeline_info.vertex_shader = vertex_shader;
 		pipeline_info.fragment_shader = fragment_shader;
-		pipeline_info.render_target = render_target;
+		pipeline_info.render_target = Graphics::getDefaultRenderTarget();
 		pipeline_info.flags = RASTERIZATION_PIPELINE_FLAG_NO_DEPTH_TEST;
 
 		pipeline = Resources::createRasterizationPipeline(pipeline_info);
@@ -135,8 +118,6 @@ public:
 		RasterizationPipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.rasterization_pipeline = pipeline;
 		pipeline_instance_info.flags = GRAPHIC_PIPELINE_INSTANCE_FLAG_NONE;
-
-		Graphics::getWindow()->onSizeChange.subscribe(this, &OrderedRenderingScene::onWindowSizeChange);
 	}
 
 };
