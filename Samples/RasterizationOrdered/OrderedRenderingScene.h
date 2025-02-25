@@ -28,7 +28,6 @@ public:
 		for (auto pipeline_instance: pipeline_instances) {
 			delete pipeline_instance;
 		}
-
 	}
 
 	Entity createTriangle(vec3 position, vec4 color) {
