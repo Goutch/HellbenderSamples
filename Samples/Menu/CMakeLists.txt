@@ -3,7 +3,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(Menu CXX)
 add_executable(${PROJECT_NAME}
-		main.cpp)
+		main.cpp
+		MenuScene.cpp)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC HBE)
 target_include_directories(${PROJECT_NAME}
