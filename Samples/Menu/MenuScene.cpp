@@ -7,8 +7,13 @@ void MenuScene::createResources()
 	mesh_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION2D;
 	mesh_info.flags = MESH_FLAG_NONE;
 	rounded_rectangle_mesh = Resources::createMesh(mesh_info);
-
-	Geometry::createRoundedRectTriangleFan(*rounded_rectangle_mesh, 2.0, 2.0, 0.2, 4, VERTEX_FLAG_NONE, PIVOT_CENTER);
+	//float vertices[] = {
+	//	-0.5f, -0.5f,
+	//	0.5f, -0.5f,
+	//	0.0f, 0.5f,
+	//};
+	//rounded_rectangle_mesh->setBuffer(0, vertices, 3);
+	Geometry::createRoundedRectTriangleFan(*rounded_rectangle_mesh, 10.0, 5.0, 0.2, 6, VERTEX_FLAG_NONE, PIVOT_CENTER);
 
 	ShaderInfo shader_info{};
 	shader_info.path = "shaders/defaults/Position2D.vert";
@@ -22,7 +27,7 @@ void MenuScene::createResources()
 
 	RasterizationPipelineInfo pipeline_info{};
 	pipeline_info.attribute_info_count = 1;
-	pipeline_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
+	pipeline_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION2D;
 	pipeline_info.vertex_shader = vertex_shader;
 	pipeline_info.fragment_shader = fragment_shader;
 	pipeline_info.flags = RASTERIZATION_PIPELINE_FLAG_NONE;
@@ -50,7 +55,6 @@ void MenuScene::setupScene()
 	MeshRenderer* rounded_rectangle_renderer = rounded_rectangle_entity.attach<MeshRenderer>();
 	rounded_rectangle_renderer->mesh = rounded_rectangle_mesh;
 	rounded_rectangle_renderer->pipeline_instance = fan_pipeline_instance;
-
 }
 
 MenuScene::MenuScene()
