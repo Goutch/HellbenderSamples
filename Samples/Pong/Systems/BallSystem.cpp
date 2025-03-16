@@ -11,7 +11,7 @@ namespace Pong {
 		this->game_state = &game_state;
 		this->bounce_sound = bounce_sound;
 		scene->onUpdate.subscribe(this, &BallSystem::update);
-		scene->onPrepareRenderGraph.subscribe(this, &BallSystem::draw);
+		scene->onDraw.subscribe(this, &BallSystem::draw);
 		scene->onAttach<BallComponent>().subscribe(this, &BallSystem::onAttachBallComponent);
 		scene->onDetach<BallComponent>().subscribe(this, &BallSystem::onDetachBallComponent);
 
