@@ -11,7 +11,7 @@ class OrderedRenderingScene : public Scene {
 	Shader *fragment_shader;
 	RasterizationPipeline *pipeline;
 	std::vector<RasterizationPipelineInstance *> pipeline_instances;
-	\
+
 
 public:
 
