@@ -67,8 +67,19 @@ jobs:
     - name: Install Vulkan SDK (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        choco install vulkan-sdk --yes
-        echo "VULKAN_SDK=C:\\VulkanSDK" >> $env:GITHUB_ENV
+        # Define the Vulkan SDK version to download
+        $vulkan_sdk_url = "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe?Human=true"
+        $vulkan_sdk_installer = "$env:temp\vulkan-sdk-installer.exe"
+
+        # Download the Vulkan SDK installer
+        Invoke-WebRequest -Uri $vulkan_sdk_url -OutFile $vulkan_sdk_installer
+
+        # Run the installer silently
+        Start-Process -FilePath $vulkan_sdk_installer -ArgumentList "/S" -Wait
+
+        # Set the VULKAN_SDK environment variable
+        $vulkan_sdk_path = "C:\VulkanSDK"
+        echo "VULKAN_SDK=$vulkan_sdk_path" >> $env:GITHUB_ENV
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
