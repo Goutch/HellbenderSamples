@@ -57,9 +57,14 @@ jobs:
     - name: Install Vulkan SDK (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: |
-        curl -L https://sdk.lunarg.com/sdk/download/latest/linux/vulkan-sdk.tar.gz?Human=true -o vulkan-sdk.tar.gz
-        tar -xzf vulkan-sdk.tar.gz
-        export VULKAN_SDK=$(find $PWD -type d -name "x86_64" | head -n 1)
+        # Download the latest Vulkan SDK tarball directly
+        curl -L https://sdk.lunarg.com/sdk/download/latest/linux/vulkan-sdk.tar.gz -o vulkan-sdk.tar.gz
+    
+        # Extract the tarball
+        tar -xvzf vulkan-sdk.tar.gz
+    
+        # Set the Vulkan SDK environment variable
+        export VULKAN_SDK=$(pwd)/vulkan-sdk
         echo "VULKAN_SDK=$VULKAN_SDK" >> $GITHUB_ENV
         echo "$VULKAN_SDK/bin" >> $GITHUB_PATH
         echo "$VULKAN_SDK/lib" >> $GITHUB_PATH
