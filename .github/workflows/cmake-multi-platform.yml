@@ -9,20 +9,6 @@ on:
     branches: [ "master" ]
 
 jobs:
-  sync:
-    name: 'Submodules Sync'
-    runs-on: ubuntu-latest
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-    # Update references
-    - name: Git Submodule Update
-      run: |
-        git submodule update --init --recursive --remote
   build:
     runs-on: ${{ matrix.os }}
 
@@ -59,8 +45,10 @@ jobs:
             c_compiler: cl
 
     steps:
+    - name: Checkout repository with submodules
     - uses: actions/checkout@v4
-
+      with:
+        submodules: recursive  # This is the key!
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
