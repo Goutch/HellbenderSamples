@@ -72,7 +72,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         # Define the Vulkan SDK version to download
-        $vulkan_sdk_url = "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe?Human=true"
+        $vulkan_sdk_url = "https://sdk.lunarg.com/sdk/download/1.4.309.0/windows/VulkanSDK-1.4.309.0-Installer.exe"
         $vulkan_sdk_installer = "$env:temp\vulkan-sdk-installer.exe"
 
         # Download the Vulkan SDK installer
