@@ -25,7 +25,7 @@ int main() {
 	//-----------------------SETUP--------------------
 	{
 		//-----------------------Games--------------------
-		MultiThreadedSystemScene triangleScene = MultiThreadedSystemScene();
+		ParallelSystemScene parallelScene = ParallelSystemScene();
 		//-----------------------EVENTS------------------
 		Application::onUpdate.subscribe(&onAppUpdate);
 		//-----------------------LOOP--------------------
