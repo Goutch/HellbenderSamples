@@ -78,6 +78,6 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-          name: my-build-artifact
-          path: output/
-          retention-days: 30
+        name: my-build-${{ matrix.os }}-${{ matrix.c_compiler }}
+        path: ${{ matrix.os == 'windows-latest' && format('{0}/Release/', steps.strings.outputs.build-output-dir) || steps.strings.outputs.build-output-dir }}
+        retention-days: 30
