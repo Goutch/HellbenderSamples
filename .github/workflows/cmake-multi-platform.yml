@@ -79,5 +79,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: my-build-${{ matrix.os }}-${{ matrix.c_compiler }}
-        path: ${{ steps.strings.outputs.build-output-dir }}
+        path: ${{ steps.strings.outputs.build-output-dir }}/out
         retention-days: 30
