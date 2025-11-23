@@ -1,7 +1,6 @@
 #pragma once
 
 #include "HBE.h"
-#include "util/Geometry.h"
 using namespace HBE;
 
 class ParallelSystemScene : public Scene {
@@ -45,7 +44,7 @@ public:
 
 		triangle_mesh = Resources::createMesh(triangle_info);
 
-                Geometry::createQuad(triangle_mesh, 1.0f, 1.0f);
+        Geometry::createQuad(*triangle_mesh, 1.0f, 1.0f,VERTEX_FLAG_NONE);
 		float vertices[] = {
 				-0.5f, -0.5f, 0.0f,
 				0.5f, -0.5f, 0.0f,

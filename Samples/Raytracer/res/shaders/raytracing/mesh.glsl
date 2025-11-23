@@ -9,7 +9,7 @@ struct VertexData{
 };
 VertexData getInterpolatedVertexData(InstanceInfo instance_info)
 {
-
+    //maybe rayQueryGetIntersectionBarycentricsEXT can do this?
     //Get the barycentric coordinates of the hit point.
     vec3 baryCoords = vec3(hitResult.barycentric_coords.x, hitResult.barycentric_coords.y, 1.0 - (hitResult.barycentric_coords.x + hitResult.barycentric_coords.y));
 
