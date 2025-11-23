@@ -26,6 +26,7 @@ int main() {
 	{
 		//-----------------------Games--------------------
 		ParallelSystemScene parallelScene = ParallelSystemScene();
+
 		//-----------------------EVENTS------------------
 		Application::onUpdate.subscribe(&onAppUpdate);
 		//-----------------------LOOP--------------------

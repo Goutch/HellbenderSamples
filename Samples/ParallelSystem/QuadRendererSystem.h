@@ -1,0 +1,24 @@
+#pragma once
+#include "HBE.h"
+
+struct QuadRenderer
+{
+	vec4 color = vec4(1);
+};
+
+class QuadRendererSystem : System
+{
+	Mesh* quad_mesh;
+
+	Shader* vertex_shader;
+	Shader* fragment_shader;
+	RasterizationPipeline* pipeline;
+	RasterizationPipelineInstance* pipeline_instance;
+	bool active = true;
+
+public:
+	QuadRendererSystem(Scene* scene);
+	~QuadRendererSystem();
+	void update(float delta);
+	void draw(RenderGraph* render_graph);
+};

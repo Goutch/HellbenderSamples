@@ -5,11 +5,13 @@ layout(location = 0) out vec4 outColor;
 
 
 //----------------------uniforms----------------------
-layout(binding = 1) uniform MaterialUniform {
-    vec4 color;
-} material;
 
+layout(push_constant) uniform Constants
+{
+	mat4 transform;
+	vec4 color;
+} constants;
 
 void main() {
-    outColor = material.color;
+	outColor = constants.color;
 }

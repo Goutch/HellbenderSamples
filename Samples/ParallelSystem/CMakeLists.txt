@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CXX_STANDARD 20)
 
-project(MultiThreadedSystem CXX)
+project(ParallelSystem CXX)
 add_executable(${PROJECT_NAME}
 		main.cpp
-		RotatorSystem.cpp)
+		RotatorSystem.cpp
+		QuadRendererSystem.cpp
+		QuadRendererSystem.h)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC HBE)
 target_include_directories(${PROJECT_NAME}
@@ -16,4 +18,4 @@ set_target_properties(${PROJECT_NAME}
 		RUNTIME_OUTPUT_DIRECTORY ${HBE_OUTPUT_DIR}
 )
 
-#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${HBE_OUTPUT_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${HBE_OUTPUT_DIR})
