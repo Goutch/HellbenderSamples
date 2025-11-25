@@ -14,7 +14,8 @@ class TriangleScene : public Scene {
 	Entity triangle_entity;
 public:
 
-	TriangleScene() : Scene() {
+	TriangleScene() {
+
 		createResources();
 		setupScene();
 	}

@@ -2,9 +2,10 @@
 #extension GL_EXT_ray_tracing: enable
 #extension GL_EXT_nonuniform_qualifier: enable
 #extension GL_GOOGLE_include_directive : require
+#extension GL_EXT_ray_tracing : require
 #define PRIMARY_PAYLOAD_IN
 #include "../common.glsl"
-#include "mesh.glsl"
+#include "../mesh.glsl"
 
 void main()
 {

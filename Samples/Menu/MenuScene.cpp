@@ -1,7 +1,6 @@
 #include "MenuScene.h"
 
-void MenuScene::createResources()
-{
+void MenuScene::createResources() {
 	MeshInfo mesh_info{};
 	mesh_info.attribute_info_count = 1;
 	mesh_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION2D;
@@ -48,8 +47,7 @@ void MenuScene::createResources()
 	strip_pipeline_instance->setUniform("material", &material);
 }
 
-void MenuScene::setupScene()
-{
+void MenuScene::setupScene() {
 	Entity camera_entity = createEntity3D();
 	camera_entity.attach<Camera2D>();
 	setCameraEntity(camera_entity);
@@ -57,12 +55,12 @@ void MenuScene::setupScene()
 	Entity rounded_rectangle_outline_entity = createEntity3D();
 	Entity rounded_rectangle_entity = createEntity3D();
 
-	MeshRenderer* rounded_rectangle_renderer = rounded_rectangle_entity.attach<MeshRenderer>();
+	MeshRenderer *rounded_rectangle_renderer = rounded_rectangle_entity.attach<MeshRenderer>();
 	rounded_rectangle_renderer->mesh = rounded_rectangle_mesh;
 	rounded_rectangle_renderer->pipeline_instance = fan_pipeline_instance;
 	rounded_rectangle_renderer->ordered = true;
 
-	MeshRenderer* rounded_rectangle_outline_renderer = rounded_rectangle_outline_entity.attach<MeshRenderer>();
+	MeshRenderer *rounded_rectangle_outline_renderer = rounded_rectangle_outline_entity.attach<MeshRenderer>();
 	rounded_rectangle_outline_renderer->mesh = rounded_rectangle_outline_mesh;
 	rounded_rectangle_outline_renderer->pipeline_instance = strip_pipeline_instance;
 	rounded_rectangle_outline_renderer->ordered = true;
@@ -70,17 +68,18 @@ void MenuScene::setupScene()
 	setParent(rounded_rectangle_outline_entity, rounded_rectangle_entity);
 }
 
-MenuScene::MenuScene()
-{
+MenuScene::MenuScene() {
 	createResources();
 	setupScene();
 }
 
-MenuScene::~MenuScene()
-{
+MenuScene::~MenuScene() {
 	delete rounded_rectangle_mesh;
+	delete rounded_rectangle_outline_mesh;
+	delete fan_pipeline;
+	delete strip_pipeline;
+	delete fan_pipeline_instance;
+	delete strip_pipeline_instance;
 	delete vertex_shader;
 	delete fragment_shader;
-	delete fan_pipeline;
-	delete fan_pipeline_instance;
 }

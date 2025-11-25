@@ -77,6 +77,10 @@ void Raytracer::createPrimaryRaytracingResources(uint32_t history_count) {
 	shader_info.path = "shaders/raytracing/closestHit/primary_closest_hit_mesh.glsl";
 	raytracing_resources.hit_shaders.push_back(Resources::createShader(shader_info));
 
+	shader_info.stage = SHADER_STAGE_ANY_HIT;
+	shader_info.path = "shaders/raytracing/anyHit/alpha_clipping_anyhit.glsl";
+	raytracing_resources.hit_shaders.push_back(Resources::createShader(shader_info));
+
 	shader_info.stage = SHADER_STAGE_INTERSECTION;
 	shader_info.path = "shaders/raytracing/intersect/intersect_box.glsl";
 	raytracing_resources.hit_shaders.push_back(Resources::createShader(shader_info));
@@ -84,9 +88,9 @@ void Raytracer::createPrimaryRaytracingResources(uint32_t history_count) {
 	raytracing_resources.hit_shaders.push_back(Resources::createShader(shader_info));
 
 	//primary rays
-	raytracing_resources.shader_groups.push_back({0, -1, 2}); //box
-	raytracing_resources.shader_groups.push_back({0, -1, 3}); //sphere
-	raytracing_resources.shader_groups.push_back({1, -1, -1}); //Mesh
+	raytracing_resources.shader_groups.push_back({0, -1, 3}); //box
+	raytracing_resources.shader_groups.push_back({0, -1, 4}); //sphere
+	raytracing_resources.shader_groups.push_back({1, 2, -1}); //Mesh
 
 	RaytracingPipelineInfo primary_raytraycing_pipeline_info{};
 
