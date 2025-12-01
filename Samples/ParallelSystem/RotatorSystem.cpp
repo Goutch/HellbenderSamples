@@ -40,7 +40,7 @@ void RotatorSystem::updateMultiThreaded(float delta)
 {
 	auto rotator_group = scene->group<Transform, Rotator>();
 	std::vector<SubGroup<Transform,Rotator>> groups = rotator_group.split();
-	std::for_each(std::execution::par,groups.begin(),groups.end(),[delta](auto&& sub_group)
+	std::for_each(std::execution::par,groups.begin(),groups.end(),[delta](SubGroup<Transform,Rotator>&& sub_group)
 	{
 		for (auto [handle, transform, rotator] : sub_group)
 		{
