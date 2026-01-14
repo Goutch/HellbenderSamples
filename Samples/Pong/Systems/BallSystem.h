@@ -7,6 +7,7 @@ using namespace HBE;
 namespace Pong {
 
 	struct BallComponent {
+		COMPONENT_IDS(BallComponent)
 		vec2 velocity;
 		float radius;
 	};

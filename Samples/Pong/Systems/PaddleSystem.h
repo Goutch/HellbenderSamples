@@ -7,6 +7,7 @@ using namespace HBE;
 namespace Pong {
 
 	struct PaddleComponent {
+		COMPONENT_IDS(PaddleComponent);
 		float speed;
 		float size_x;
 		float size_y;
