@@ -22,6 +22,7 @@ int main() {
 	ApplicationInfo app_info{};
 	app_info.vulkan_version = VULKAN_VERSION_1_2;
 	app_info.name = "Instancing";
+
 	Application::init(app_info);
 	//-----------------------SETUP--------------------
 	{
