@@ -32,7 +32,7 @@ public:
 		camera_entity.attach<Camera2D>();
 		setCameraEntity(camera_entity);
 
-		int n = 100000;
+		int n = 10000;
 		for (int i = 0; i < n; i++)
 		{
 			Entity entity = createEntity3D();

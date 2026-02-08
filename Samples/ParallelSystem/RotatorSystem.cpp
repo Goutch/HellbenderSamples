@@ -18,8 +18,11 @@ void RotatorSystem::update(float delta) {
             case ROTATOR_SYSTEM_STATE_SINGLE_THREADED:
                 state_name = "ROTATOR_SYSTEM_STATE_SINGLE_THREADED";
                 break;
-            case ROTATOR_SYSTEM_STATE_MULTI_THREADED:
-                state_name = "ROTATOR_SYSTEM_STATE_MULTI_THREADED";
+            case ROTATOR_SYSTEM_STATE_MULTI_THREADED_PAGES:
+                state_name = "ROTATOR_SYSTEM_STATE_MULTI_THREADED_PAGES";
+                break;
+            case ROTATOR_SYSTEM_STATE_MULTI_THREADED_ENTITIES:
+                state_name = "ROTATOR_SYSTEM_STATE_MULTI_THREADED_ENTITIES";
                 break;
             case ROTATOR_SYSTEM_STATE_INACTIVE:
                 state_name = "ROTATOR_SYSTEM_STATE_INACTIVE";
@@ -34,22 +37,33 @@ void RotatorSystem::update(float delta) {
             updateSingleThreaded(delta);
             HB_PROFILE_END("RotatorSystem::updateSingleThreaded");
             break;
-        case ROTATOR_SYSTEM_STATE_MULTI_THREADED:
-            HB_PROFILE_BEGIN("RotatorSystem::updateMultiThreaded");
-            updateMultiThreaded(delta);
-            HB_PROFILE_END("RotatorSystem::updateMultiThreaded");
+        case ROTATOR_SYSTEM_STATE_MULTI_THREADED_PAGES:
+            HB_PROFILE_BEGIN("RotatorSystem::updatePageMultiThreaded");
+            updatePageMultiThreaded(delta);
+            HB_PROFILE_END("RotatorSystem::updatePageMultiThreaded");
+            break;
+        case ROTATOR_SYSTEM_STATE_MULTI_THREADED_ENTITIES:
+            HB_PROFILE_BEGIN("RotatorSystem::updateEntityMultiThreaded");
+            updateEntityMultiThreaded(delta);
+            HB_PROFILE_END("RotatorSystem::updateEntityMultiThreaded");
             break;
         case ROTATOR_SYSTEM_STATE_INACTIVE:
             break;
     }
 }
 
-
-void RotatorSystem::updateMultiThreaded(float delta) {
+void RotatorSystem::updatePageMultiThreaded(float delta) {
     auto rotator_group = scene->group<Transform, Rotator>();
-    rotator_group.forEachParallel([delta](entity_handle handle, Transform &transform, Rotator &rotator) {
+    rotator_group.forEachPageParallel([delta](entity_handle handle, Transform &transform, Rotator &rotator) {
         float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
-        transform.rotate(rotator.rotation * expensive_opperation * delta);
+        rotator.speed = expensive_opperation;
+    });
+}
+
+void RotatorSystem::updateEntityMultiThreaded(float delta) {
+    auto rotator_group = scene->group<Transform, Rotator>();
+    rotator_group.forEachEntityParallel([delta](entity_handle handle, Transform &transform, Rotator &rotator) {
+        float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
     });
 }
 
@@ -57,6 +71,5 @@ void RotatorSystem::updateSingleThreaded(float delta) {
     auto rotator_group = scene->group<Transform, Rotator>();
     rotator_group.forEach([delta](entity_handle handle, Transform &transform, Rotator &rotator) {
         float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
-        transform.rotate(rotator.rotation * expensive_opperation * delta);
     });
 }

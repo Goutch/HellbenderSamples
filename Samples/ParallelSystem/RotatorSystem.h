@@ -10,12 +10,13 @@ struct Rotator {
 
 class RotatorSystem : public HBE::System {
     enum ROTATOR_SYSTEM_STATE {
-        ROTATOR_SYSTEM_STATE_SINGLE_THREADED = 0,
-        ROTATOR_SYSTEM_STATE_MULTI_THREADED = 1,
-        ROTATOR_SYSTEM_STATE_INACTIVE = 2,
+        ROTATOR_SYSTEM_STATE_MULTI_THREADED_PAGES = 0,
+        ROTATOR_SYSTEM_STATE_MULTI_THREADED_ENTITIES = 1,
+        ROTATOR_SYSTEM_STATE_SINGLE_THREADED = 2,
+        ROTATOR_SYSTEM_STATE_INACTIVE = 3,
     };
 
-    int state = ROTATOR_SYSTEM_STATE_SINGLE_THREADED;
+    int state = ROTATOR_SYSTEM_STATE_MULTI_THREADED_PAGES;
 
 public:
     RotatorSystem(Scene *scene);
@@ -24,7 +25,9 @@ public:
 
     void update(float delta);
 
-    void updateMultiThreaded(float delta);
+    void updatePageMultiThreaded(float delta);
+
+    void updateEntityMultiThreaded(float delta);
 
     void updateSingleThreaded(float delta);
 };
