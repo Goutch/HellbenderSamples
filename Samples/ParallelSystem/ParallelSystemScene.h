@@ -32,7 +32,7 @@ public:
 		camera_entity.attach<Camera2D>();
 		setCameraEntity(camera_entity);
 
-		int n = 10000;
+		int n = 100000;
 		for (int i = 0; i < n; i++)
 		{
 			Entity entity = createEntity3D();
@@ -43,12 +43,12 @@ public:
 				Random::floatRange(-5, 5),
 				0));
 
-			auto* renderer = entity.attach<QuadRenderer>();
-			renderer->color = vec4(
-				Random::floatRange(0, 1),
-				Random::floatRange(0, 1),
-				Random::floatRange(0, 1),
-				1);
+			//auto* renderer = entity.attach<QuadRenderer>();
+			//renderer->color = vec4(
+			//	Random::floatRange(0, 1),
+			//	Random::floatRange(0, 1),
+			//	Random::floatRange(0, 1),
+			//	1);
 
 			entity.get<Transform>()->setLocalScale(vec3(Random::floatRange(0.01, 0.2)));
 		}
