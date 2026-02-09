@@ -68,7 +68,7 @@ void RotatorSystem::updatePageMultiThreaded(float delta) {
 void RotatorSystem::updateEntityMultiThreaded(float delta) {
     auto rotator_group = scene->group<Transform, Rotator>();
     rotator_group.forEachEntityParallel([delta](entity_handle handle, Transform &transform, Rotator &rotator) {
-        for (int i = 0; i < 10000; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
             rotator.speed = expensive_opperation*i;
         }
@@ -78,7 +78,7 @@ void RotatorSystem::updateEntityMultiThreaded(float delta) {
 void RotatorSystem::updateSingleThreaded(float delta) {
     auto rotator_group = scene->group<Transform, Rotator>();
     rotator_group.forEach([delta](entity_handle handle, Transform &transform, Rotator &rotator) {
-        for (int i = 0; i < 10000; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
             rotator.speed = expensive_opperation*i;
         }
