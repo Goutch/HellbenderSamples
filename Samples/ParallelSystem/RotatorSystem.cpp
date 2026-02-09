@@ -14,6 +14,8 @@ void RotatorSystem::update(float delta) {
     if (Input::getKeyDown(KEY_T)) {
         state++;
         std::string state_name;
+
+        state = state % 4;
         switch (state) {
             case ROTATOR_SYSTEM_STATE_SINGLE_THREADED:
                 state_name = "ROTATOR_SYSTEM_STATE_SINGLE_THREADED";
@@ -29,7 +31,6 @@ void RotatorSystem::update(float delta) {
                 break;
         }
         Log::debug("state now at " + state_name);
-        state = state % 3;
     }
     switch (state) {
         case ROTATOR_SYSTEM_STATE_SINGLE_THREADED:
@@ -52,24 +53,34 @@ void RotatorSystem::update(float delta) {
     }
 }
 
+
+
 void RotatorSystem::updatePageMultiThreaded(float delta) {
     auto rotator_group = scene->group<Transform, Rotator>();
     rotator_group.forEachPageParallel([delta](entity_handle handle, Transform &transform, Rotator &rotator) {
-        float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
-        rotator.speed = expensive_opperation;
+        for (int i = 0; i < 1000; ++i) {
+            float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
+            rotator.speed = expensive_opperation*i;
+        }
     });
 }
 
 void RotatorSystem::updateEntityMultiThreaded(float delta) {
     auto rotator_group = scene->group<Transform, Rotator>();
     rotator_group.forEachEntityParallel([delta](entity_handle handle, Transform &transform, Rotator &rotator) {
-        float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
+        for (int i = 0; i < 10000; ++i) {
+            float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
+            rotator.speed = expensive_opperation*i;
+        }
     });
 }
 
 void RotatorSystem::updateSingleThreaded(float delta) {
     auto rotator_group = scene->group<Transform, Rotator>();
     rotator_group.forEach([delta](entity_handle handle, Transform &transform, Rotator &rotator) {
-        float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
+        for (int i = 0; i < 10000; ++i) {
+            float expensive_opperation = pow(sqrt(rotator.speed), 2.0f);
+            rotator.speed = expensive_opperation*i;
+        }
     });
 }
