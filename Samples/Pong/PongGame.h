@@ -20,7 +20,7 @@ namespace Pong {
 		PongUIScene *ui_scene = nullptr;
 		PongGameScene *game_scene = nullptr;
 		PongGameState game_state;
-
+		event_subscription_id present_subscription_id;
 
 	public :
 		PongGame();
@@ -29,6 +29,8 @@ namespace Pong {
 
 	private:
 		void onPresent();
+
+
 	};
 }
 

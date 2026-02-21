@@ -18,6 +18,7 @@ class RotatorSystem : public HBE::System {
 
     int state = ROTATOR_SYSTEM_STATE_MULTI_THREADED_PAGES;
 
+	event_subscription_id update_subscription_id;
 public:
     RotatorSystem(Scene *scene);
 
@@ -30,4 +31,5 @@ public:
     void updateEntityMultiThreaded(float delta);
 
     void updateSingleThreaded(float delta);
+
 };

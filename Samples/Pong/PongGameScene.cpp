@@ -3,6 +3,7 @@
 #include "Systems/BallSystem.h"
 #include "Systems/PaddleSystem.h"
 #include "PongGame.h"
+
 namespace Pong {
 
 	Area &PongGameScene::getArea() {
@@ -14,12 +15,12 @@ namespace Pong {
 		addSystem(new BallSystem(this, game_state, bounce_sound_instance, render_target));
 		addSystem(new PaddleSystem(this));
 		setupScene();
-		Graphics::getWindow()->onSizeChange.subscribe(this, &PongGameScene::OnWindowSizeChange);
+		Graphics::getWindow()->onSizeChange.subscribe(on_window_size_change_subscription_id, this, &PongGameScene::OnWindowSizeChange);
 	}
 
 	PongGameScene::~PongGameScene() {
 
-		render_target->onResolutionChange.unsubscribe(this);
+		Graphics::getWindow()->onSizeChange.unsubscribe(on_window_size_change_subscription_id);
 		delete quad_mesh;
 		delete vertex_shader;
 		delete fragment_shader;
@@ -69,18 +70,17 @@ namespace Pong {
 
 		for (int i = 0; i < 1; ++i) {
 			createBall(vec2(0, 0),
-					   vec2(Random::floatRange(-10, 10), Random::floatRange(-10, 10)));
+			           vec2(Random::floatRange(-10, 10), Random::floatRange(-10, 10)));
 		}
 		//createBall(vec2(0, 0), vec2(10, 10));
 		paddle_left_entity = createPaddle(vec3{-game_area.size.x / 2 + 1, 0, 0},
-										  KEY_W,
-										  KEY_S,
-										  paddle_left_pipeline_instance);
+		                                  KEY_W,
+		                                  KEY_S,
+		                                  paddle_left_pipeline_instance);
 		paddle_right_entity = createPaddle(vec3{game_area.size.x / 2 - 1, 0, 0},
-										   KEY_UP,
-										   KEY_DOWN,
-										   paddle_right_pipeline_instance);
-		render_target->onResolutionChange.subscribe(this, &PongGameScene::onRenderTargetResolutionChange);
+		                                   KEY_UP,
+		                                   KEY_DOWN,
+		                                   paddle_right_pipeline_instance);
 		onRenderTargetResolutionChange(render_target);
 	}
 
@@ -155,7 +155,7 @@ namespace Pong {
 		float width = height * camera->aspectRatio();
 
 		game_area = Area{{-width / 2.0f, -height / 2.0f},
-						 {width,         height}};
+		                 {width,         height}};
 
 		vec3 paddle_left_position = paddle_left_entity.get<Transform>()->position();
 		vec3 paddle_right_position = paddle_right_entity.get<Transform>()->position();

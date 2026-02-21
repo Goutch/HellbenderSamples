@@ -66,13 +66,15 @@ int main() {
 	main_scene = new RaytracingScene();
 
 	//-----------------------EVENTS------------------
-	Application::onUpdate.subscribe(&onAppUpdate);
-	Application::onPresent.subscribe(&onAppPresent);
+	event_subscription_id update_subscription_id;
+	event_subscription_id present_subscription_id;
+	Application::onUpdate.subscribe(update_subscription_id, &onAppUpdate);
+	Application::onPresent.subscribe(present_subscription_id, &onAppPresent);
 	//-----------------------LOOP--------------------
 	Application::run();
 	//-----------------------CLEANUP------------------
-	Application::onUpdate.unsubscribe(&onAppUpdate);
-	Application::onPresent.unsubscribe(&onAppPresent);
+	Application::onUpdate.unsubscribe(update_subscription_id);
+	Application::onPresent.unsubscribe(present_subscription_id);
 	//-----------------------TERMINATE------------------
 
 	if (ui_scene != nullptr)

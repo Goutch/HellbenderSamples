@@ -5,8 +5,7 @@
 #include "QuadRendererSystem.h"
 #include "HBE.h"
 
-QuadRendererSystem::QuadRendererSystem(Scene* scene): System(scene)
-{
+QuadRendererSystem::QuadRendererSystem(Scene *scene) : System(scene) {
 	MeshInfo triangle_info{};
 	triangle_info.attribute_info_count = 1;
 	triangle_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
@@ -42,28 +41,26 @@ QuadRendererSystem::QuadRendererSystem(Scene* scene): System(scene)
 
 	pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
 
-	scene->onDraw.subscribe(this, &QuadRendererSystem::draw);
-	scene->onUpdate.subscribe(this, &QuadRendererSystem::update);
+	scene->onDraw.subscribe(draw_subscription_id, this, &QuadRendererSystem::draw);
+	scene->onUpdate.subscribe(update_subscription_id, this, &QuadRendererSystem::update);
 }
 
-QuadRendererSystem::~QuadRendererSystem()
-{
+QuadRendererSystem::~QuadRendererSystem() {
+	scene->onDraw.unsubscribe(draw_subscription_id);
+	scene->onUpdate.unsubscribe(update_subscription_id);
 	delete vertex_shader;
 	delete fragment_shader;
 	delete pipeline;
 	delete pipeline_instance;
 }
 
-void QuadRendererSystem::update(float delta)
-{
-	if (Input::getKeyDown(KEY_R))
-	{
+void QuadRendererSystem::update(float delta) {
+	if (Input::getKeyDown(KEY_R)) {
 		active = !active;
 	}
 }
 
-void QuadRendererSystem::draw(RenderGraph* render_graph)
-{
+void QuadRendererSystem::draw(RenderGraph *render_graph) {
 	if (!active)
 		return;
 	auto group = scene->group<Transform, QuadRenderer>();
@@ -73,8 +70,7 @@ void QuadRendererSystem::draw(RenderGraph* render_graph)
 	push_constants.name = "constants";
 	push_constants.data = &push_constants_data;
 	push_constants.size = sizeof(mat4) + sizeof(vec4);
-	for (auto [handle, transform, quad_renderer] : group)
-	{
+	for (auto [handle, transform, quad_renderer]: group) {
 		push_constants.data = &push_constants_data;
 		memcpy(&push_constants_data[0], &transform.local(), sizeof(mat4));
 		memcpy(&push_constants_data[16], &quad_renderer.color, sizeof(vec4));

@@ -3,11 +3,11 @@
 #include <execution>
 
 RotatorSystem::RotatorSystem(Scene *scene) : System(scene) {
-    scene->onUpdate.subscribe(this, &RotatorSystem::update);
+    scene->onUpdate.subscribe(update_subscription_id,this, &RotatorSystem::update);
 }
 
 RotatorSystem::~RotatorSystem() {
-    scene->onUpdate.unsubscribe(this);
+    scene->onUpdate.unsubscribe(update_subscription_id);
 }
 
 void RotatorSystem::update(float delta) {

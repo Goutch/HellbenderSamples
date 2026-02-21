@@ -27,6 +27,12 @@ namespace Pong {
 		RasterizationPipeline *ball_pipeline;
 		Shader *ball_vertex_shader;
 		Shader *ball_fragment_shader;
+
+
+		event_subscription_id update_subscription_id;
+		event_subscription_id draw_subscription_id;
+		event_subscription_id attach_subscription_id;
+		event_subscription_id detach_subscription_id;
 	public:
 		BallSystem(PongGameScene *scene, PongGameState &game_state, AudioClipInstance *bounce_sound, RasterizationTarget *render_target);
 
@@ -39,6 +45,7 @@ namespace Pong {
 		void draw(RenderGraph *render_graph);
 
 		void update(float delta);
+
 	};
 }
 

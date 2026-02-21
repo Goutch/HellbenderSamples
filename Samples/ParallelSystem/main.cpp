@@ -28,11 +28,12 @@ int main() {
 		ParallelSystemScene parallelScene = ParallelSystemScene();
 
 		//-----------------------EVENTS------------------
-		Application::onUpdate.subscribe(&onAppUpdate);
+		event_subscription_id update_subscription_id;
+		Application::onUpdate.subscribe(update_subscription_id,&onAppUpdate);
 		//-----------------------LOOP--------------------
 		Application::run();
 		//-----------------------CLEANUP------------------
-		Application::onUpdate.unsubscribe(&onAppUpdate);
+		Application::onUpdate.unsubscribe(update_subscription_id);
 		//-----------------------TERMINATE------------------
 	}
 	Application::terminate();

@@ -4,7 +4,7 @@
 
 using namespace HBE;
 namespace Pong {
-	class FPSCounter{
+	class FPSCounter {
 		Shader *text_vertex_shader;
 		Shader *text_fragment_shader;
 
@@ -31,6 +31,9 @@ namespace Pong {
 		vec4 green = vec4(184.0f / 255.0f, 250.0f / 255.0f, 38.0f / 255.0f, 1);
 
 		float time_since_last_fps_update = 0.0f;
+
+		event_subscription_id update_subscription_id;
+		event_subscription_id render_target_size_changed_subscription_id;
 	public:
 		void update(float delta) {
 			time_since_last_fps_update += delta;
@@ -41,7 +44,7 @@ namespace Pong {
 			int fps = (int) std::floor(1.0f / delta);
 
 			text = std::to_string(fps) + "fps\n" +
-				   std::to_string(delta * 1000.0f) + "ms";
+			       std::to_string(delta * 1000.0f) + "ms";
 
 
 			vec4 text_color = vec4(1, 1, 1, 1);
@@ -56,14 +59,14 @@ namespace Pong {
 			text_pipeline_instance->setUniform("material", &text_color);
 
 			Geometry::updateText(*text_mesh,
-								 text,
-								 *font,
-								 1.0,
-								 1.0,
-								 TEXT_ALIGNMENT_LEFT,
-								 PIVOT_TOP_LEFT,
-								 total_width,
-								 total_height);
+			                     text,
+			                     *font,
+			                     1.0,
+			                     1.0,
+			                     TEXT_ALIGNMENT_LEFT,
+			                     PIVOT_TOP_LEFT,
+			                     total_width,
+			                     total_height);
 
 
 		}
@@ -80,8 +83,8 @@ namespace Pong {
 
 		FPSCounter(Scene &scene, RasterizationTarget *render_target) {
 			this->scene = &scene;
-			scene.onUpdate.subscribe(this, &FPSCounter::update);
-			render_target->onResolutionChange.subscribe(this, &FPSCounter::onResolutionChange);
+			scene.onUpdate.subscribe(update_subscription_id, this, &FPSCounter::update);
+			render_target->onResolutionChange.subscribe(render_target_size_changed_subscription_id, this, &FPSCounter::onResolutionChange);
 			this->render_target = render_target;
 			createResources();
 			setupScene();
@@ -90,8 +93,8 @@ namespace Pong {
 
 		~FPSCounter() {
 			text_entity.destroy();
-			scene->onUpdate.unsubscribe(this);
-			render_target->onResolutionChange.unsubscribe(this);
+			scene->onUpdate.unsubscribe(update_subscription_id);
+			render_target->onResolutionChange.unsubscribe(render_target_size_changed_subscription_id);
 			delete text_vertex_shader;
 			delete text_fragment_shader;
 			delete text_pipeline;
@@ -165,13 +168,13 @@ namespace Pong {
 			text_pipeline_instance->setImage("mtsdf", font->getTextureAtlas());
 			text = std::string("fps\n") + "ms";
 			text_mesh = Geometry::createText(text,
-											 *font,
-											 1.0,
-											 1.0,
-											 TEXT_ALIGNMENT_LEFT,
-											 PIVOT_CENTER,
-											 total_width,
-											 total_height);
+			                                 *font,
+			                                 1.0,
+			                                 1.0,
+			                                 TEXT_ALIGNMENT_LEFT,
+			                                 PIVOT_CENTER,
+			                                 total_width,
+			                                 total_height);
 
 		}
 
@@ -190,5 +193,6 @@ namespace Pong {
 		Shader *getFragmentShader() {
 			return text_fragment_shader;
 		}
+
 	};
 }

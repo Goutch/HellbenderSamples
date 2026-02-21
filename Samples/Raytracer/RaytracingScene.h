@@ -54,6 +54,8 @@ private:
 	bool paused = false;
 	float time = 0;
 	RENDER_MODE render_mode = ACCUMULATED;
+
+	event_subscription_id on_resolution_change_subscription_id;
 public:
 
 	void createGBuffer(uint32_t width, uint32_t height);
@@ -81,6 +83,7 @@ public:
 	RaytracingScene();
 
 	void destroyGBuffer();
+
 };
 
 

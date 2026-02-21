@@ -25,6 +25,8 @@ namespace Pong {
 		RasterizationTarget *render_target;
 		AudioClip *bounce_sound;
 		AudioClipInstance *bounce_sound_instance;
+
+		event_subscription_id on_window_size_change_subscription_id;
 	public:
 		PongGameScene(PongGameState &game_state);
 
@@ -44,6 +46,7 @@ namespace Pong {
 
 
 	public:
-		Entity createBall(vec2 position,vec2 velocity);
+		Entity createBall(vec2 position, vec2 velocity);
+
 	};
 }

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "FPSCounter.h"
 #include "HBE.h"
 
@@ -28,8 +29,13 @@ namespace Pong {
 
 		uint32_t last_score_left = 0;
 		uint32_t last_score_right = 0;
+
+
+		event_subscription_id update_subscription_id;
+		event_subscription_id on_window_size_change_subscription_id;
 	public:
 		void updateUI(float delta);
+
 		PongUIScene(PongGameState &game_state);
 
 		~PongUIScene() override;
@@ -39,6 +45,7 @@ namespace Pong {
 		Entity createScore(RasterizationPipelineInstance *pipeline_instance, Mesh *text);
 
 		void createResources();
+
 		void setupScene();
 	};
 }

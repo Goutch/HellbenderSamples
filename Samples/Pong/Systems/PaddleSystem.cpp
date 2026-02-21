@@ -30,11 +30,11 @@ namespace Pong {
 	}
 
 	PaddleSystem::PaddleSystem(PongGameScene *game_scene) : System(game_scene) {
-		game_scene->onUpdate.subscribe(this, &PaddleSystem::update);
+		game_scene->onUpdate.subscribe(update_subscription_id,this, &PaddleSystem::update);
 		this->game_scene = game_scene;
 	}
 
 	PaddleSystem::~PaddleSystem() {
-		game_scene->onUpdate.unsubscribe(this);
+		game_scene->onUpdate.unsubscribe(update_subscription_id);
 	}
 }

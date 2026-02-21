@@ -16,6 +16,7 @@ class TextScene : public Scene {
 	RasterizationPipeline *text_pipeline;
 	RasterizationPipelineInstance *text_pipeline_instance;
 	Font *font;
+	event_subscription_id on_char_down_subscription_id;
 
 	void onCharacterInput(char codepoint) {
 		text_str += codepoint;
@@ -139,10 +140,11 @@ public:
 	TextScene() {
 		createResources();
 		setupScene();
-		Input::onCharDown.subscribe(this, &TextScene::onCharacterInput);
+		Input::onCharDown.subscribe(on_char_down_subscription_id, this, &TextScene::onCharacterInput);
 	}
 
 	~TextScene() {
+		Input::onCharDown.unsubscribe(on_char_down_subscription_id);
 		delete text_vertex_shader;
 		delete text_fragment_shader;
 		delete text_pipeline_instance;
@@ -150,5 +152,6 @@ public:
 		delete font;
 		delete text_mesh;
 	}
+
 
 };

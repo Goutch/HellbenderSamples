@@ -25,21 +25,21 @@ namespace Pong {
 		return score;
 	}
 
-	PongUIScene::PongUIScene(PongGameState &game_state) :Scene(){
+	PongUIScene::PongUIScene(PongGameState &game_state) : Scene() {
 		this->game_state = &game_state;
 
 		createResources();
 
 		setupScene();
 
-		this->onUpdate.subscribe(this, &PongUIScene::updateUI);
+		this->onUpdate.subscribe(update_subscription_id, this, &PongUIScene::updateUI);
 
-		Graphics::getWindow()->onSizeChange.subscribe(this, &PongUIScene::OnWindowSizeChange);
+		Graphics::getWindow()->onSizeChange.subscribe(on_window_size_change_subscription_id, this, &PongUIScene::OnWindowSizeChange);
 	}
 
 	PongUIScene::~PongUIScene() {
-		this->onUpdate.unsubscribe(this);
-		Graphics::getWindow()->onSizeChange.unsubscribe(this);
+		this->onUpdate.unsubscribe(update_subscription_id);
+		Graphics::getWindow()->onSizeChange.unsubscribe(on_window_size_change_subscription_id);
 
 		delete score_left_mesh;
 		delete score_right_mesh;

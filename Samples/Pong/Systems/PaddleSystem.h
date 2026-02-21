@@ -17,6 +17,7 @@ namespace Pong {
 
 	class PaddleSystem : public System {
 		PongGameScene *game_scene;
+		event_subscription_id update_subscription_id;
 	public:
 		PaddleSystem(PongGameScene *game_scene);
 

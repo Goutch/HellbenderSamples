@@ -10,10 +10,10 @@ namespace Pong {
 		this->game_scene = scene;
 		this->game_state = &game_state;
 		this->bounce_sound = bounce_sound;
-		scene->onUpdate.subscribe(this, &BallSystem::update);
-		scene->onDraw.subscribe(this, &BallSystem::draw);
-		scene->onAttach<BallComponent>().subscribe(this, &BallSystem::onAttachBallComponent);
-		scene->onDetach<BallComponent>().subscribe(this, &BallSystem::onDetachBallComponent);
+		scene->onUpdate.subscribe(update_subscription_id,this, &BallSystem::update);
+		scene->onDraw.subscribe(draw_subscription_id,this, &BallSystem::draw);
+		scene->onAttach<BallComponent>().subscribe(attach_subscription_id,this, &BallSystem::onAttachBallComponent);
+		scene->onDetach<BallComponent>().subscribe(detach_subscription_id,this, &BallSystem::onDetachBallComponent);
 
 		VertexAttributeInfo vertex_attribute_infos[2]{
 				VertexAttributeInfo{0, sizeof(vec3)+sizeof(vec2), VERTEX_ATTRIBUTE_FLAG_NONE},
@@ -209,6 +209,10 @@ namespace Pong {
 	}
 
 	BallSystem::~BallSystem() {
+		scene->onUpdate.unsubscribe(update_subscription_id);
+		scene->onDraw.unsubscribe(draw_subscription_id);
+		scene->onAttach<BallComponent>().unsubscribe(attach_subscription_id);
+		scene->onDetach<BallComponent>().unsubscribe(detach_subscription_id);
 		delete ball_mesh;
 		delete ball_vertex_shader;
 		delete ball_fragment_shader;

@@ -139,7 +139,7 @@ RaytracingScene::RaytracingScene() {
 	denoiser->setGBufferUniforms(gbuffer_resources);
 	denoiser->setSceneUniforms(scene_resources);
 
-	Graphics::getDefaultRenderTarget()->onResolutionChange.subscribe(this, &RaytracingScene::onResolutionChange);
+	Graphics::getDefaultRenderTarget()->onResolutionChange.subscribe(on_resolution_change_subscription_id, this, &RaytracingScene::onResolutionChange);
 }
 
 void RaytracingScene::destroyGBuffer() {
@@ -311,6 +311,7 @@ void RaytracingScene::update(float delta) {
 }
 
 RaytracingScene::~RaytracingScene() {
+	Graphics::getDefaultRenderTarget()->onResolutionChange.unsubscribe(on_resolution_change_subscription_id);
 	delete raytracer;
 	delete denoiser;
 	destroyGBuffer();
