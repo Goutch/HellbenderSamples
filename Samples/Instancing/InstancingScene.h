@@ -86,7 +86,6 @@ public:
 	void setupScene() {
 		Entity cube_renderer_entity = createEntity3D();
 
-		//todo: create an instancedMeshRenderer component
 		MeshRenderer *cube_renderer = cube_renderer_entity.attach<MeshRenderer>();
 		cube_renderer->use_transform_matrix_as_push_constant = false; // we are providing our transform in the form of an instance buffer
 		cube_renderer->mesh = cube_mesh;

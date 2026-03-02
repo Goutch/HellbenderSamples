@@ -3,9 +3,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(HellbenderSamples CXX)
 include_directories(".")
-
+set(HBE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/HBE")
 set(HBE_OUTPUT_DIR ${CMAKE_BINARY_DIR}/out)
-
 add_subdirectory("HBE/")
 add_subdirectory("Samples/Cube/")
 add_subdirectory("Samples/Triangle/")
