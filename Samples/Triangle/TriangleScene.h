@@ -49,7 +49,7 @@ public:
         triangle_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
 
         triangle_mesh = context.createMesh(triangle_info);
-
+        context.image_interface.createImage({});
         float vertices[] = {
             -0.5f, -0.5f, 0.0f,
             0.5f, -0.5f, 0.0f,
