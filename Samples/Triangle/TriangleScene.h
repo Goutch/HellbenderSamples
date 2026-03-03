@@ -6,7 +6,6 @@ using namespace HBE;
 
 class TriangleScene : public Scene
 {
-    Context* context;
     Mesh* triangle_mesh;
 
     Shader* vertex_shader;
@@ -18,7 +17,6 @@ class TriangleScene : public Scene
 public:
     TriangleScene()
     {
-        context = Application::instance->getContext();
         createResources();
         setupScene();
     }
@@ -50,7 +48,7 @@ public:
         triangle_info.attribute_info_count = 1;
         triangle_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
 
-        triangle_mesh = context->createMesh(triangle_info);
+        triangle_mesh = context.createMesh(triangle_info);
 
         float vertices[] = {
             -0.5f, -0.5f, 0.0f,
@@ -69,8 +67,8 @@ public:
         fragment_shader_info.path = "shaders/defaults/Position.frag";
         fragment_shader_info.stage = SHADER_STAGE_FRAGMENT;
 
-        vertex_shader = context->createShader(vertex_shader_info);
-        fragment_shader = context->createShader(fragment_shader_info);
+        vertex_shader = context.createShader(vertex_shader_info);
+        fragment_shader = context.createShader(fragment_shader_info);
 
         RasterizationPipelineInfo pipeline_info{};
         pipeline_info.attribute_info_count = 1;
@@ -79,13 +77,13 @@ public:
         pipeline_info.fragment_shader = fragment_shader;
         pipeline_info.flags = RASTERIZATION_PIPELINE_FLAG_NONE;
 
-        pipeline = context->createRasterizationPipeline(pipeline_info);
+        pipeline = context.createRasterizationPipeline(pipeline_info);
 
         RasterizationPipelineInstanceInfo pipeline_instance_info{};
         pipeline_instance_info.rasterization_pipeline = pipeline;
         pipeline_instance_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
 
-        pipeline_instance = context->createRasterizationPipelineInstance(pipeline_instance_info);
+        pipeline_instance = context.createRasterizationPipelineInstance(pipeline_instance_info);
 
         vec4 color = {1, 0, 0, 1};
         pipeline_instance->setUniform("material", &color);

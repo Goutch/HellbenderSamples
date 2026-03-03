@@ -1,4 +1,4 @@
-#include "HBE.h"
+#include "HBE/HBE.h"
 
 using namespace HBE;
 
@@ -27,11 +27,11 @@ public:
 		ShaderInfo shader_info{};
 		shader_info.path = "shaders/defaults/Position.frag";
 		shader_info.stage = SHADER_STAGE_FRAGMENT;
-		fragment_shader = Resources::createShader(shader_info);
+		fragment_shader = context.createShader(shader_info);
 
 		shader_info.path = "shaders/defaults/Position.vert";
 		shader_info.stage = SHADER_STAGE_VERTEX;
-		vertex_shader = Resources::createShader(shader_info);
+		vertex_shader = context.createShader(shader_info);
 
 		RasterizationPipelineInfo pipeline_info{};
 		pipeline_info.attribute_info_count = 1;
@@ -40,17 +40,17 @@ public:
 		pipeline_info.fragment_shader = fragment_shader;
 		pipeline_info.vertex_shader = vertex_shader;
 
-		pipeline = Resources::createRasterizationPipeline(pipeline_info);
+		pipeline = context.createRasterizationPipeline(pipeline_info);
 
 		RasterizationPipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.rasterization_pipeline = pipeline;
-		pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
+		pipeline_instance = context.createRasterizationPipelineInstance(pipeline_instance_info);
 
 		MeshInfo mesh_info{};
 		mesh_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
 		mesh_info.attribute_info_count = 1;
 
-		cube_mesh = Resources::createMesh(mesh_info);
+		cube_mesh = context.createMesh(mesh_info);
 		Geometry::createCube(*cube_mesh, 1, 1, 1, VERTEX_FLAG_NONE);
 	}
 
