@@ -4,28 +4,26 @@
 
 using namespace HBE;
 
-class TriangleScene : public Scene
-{
+class TriangleScene : public Scene {
     Mesh triangle_mesh;
     Shader vertex_shader;
     Shader fragment_shader;
     RasterizationPipeline pipeline;
     PipelineInstance pipeline_instance;
     Entity triangle_entity;
-    float vertices[] = {
+    float vertices[9] = {
         -0.5f, -0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
         0.0f, 0.5f, 0.0f
     };
+
 public:
-    TriangleScene()
-    {
+    TriangleScene() {
         createResources();
         setupScene();
     }
 
-    void createResources()
-    {
+    void createResources() {
         MeshInfo triangle_info{};
         triangle_info.attribute_info_count = 1;
         triangle_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
@@ -49,15 +47,16 @@ public:
         pipeline_instance.setUniform("material", &color);
     }
 
-    void setupScene()
-    {
+    void setupScene() {
         Entity camera_entity = createEntity3D();
         camera_entity.attach<Camera2D>();
         setCameraEntity(camera_entity);
 
         triangle_entity = createEntity3D();
-        MeshRenderer* triangle_renderer = triangle_entity.attach<MeshRenderer>();
+
+        MeshRenderer *triangle_renderer = triangle_entity.attach<MeshRenderer>();
         triangle_renderer->mesh = triangle_mesh.getHandle();
         triangle_renderer->pipeline_instance = pipeline_instance.getHandle();
+        triangle_renderer->rasterization_pipeline = pipeline;
     }
 };
