@@ -57,6 +57,5 @@ public:
         MeshRenderer *triangle_renderer = triangle_entity.attach<MeshRenderer>();
         triangle_renderer->mesh = triangle_mesh.getHandle();
         triangle_renderer->pipeline_instance = pipeline_instance.getHandle();
-        triangle_renderer->rasterization_pipeline = pipeline.getHandle();
     }
 };
