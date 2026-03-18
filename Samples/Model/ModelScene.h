@@ -7,14 +7,17 @@ using namespace HBE;
 
 class ModelScene : public Scene
 {
+	Shader frag;
+	Shader vert;
+	RasterizationPipeline model_pipeline_2_sided;
+	RasterizationPipeline model_pipeline;
+	Model sponza_model;
 public:
 	ModelScene()
 	{
 		//-------------------RESOURCES CREATION--------------------------------------
-		ShaderInfo frag_info{SHADER_STAGE_FRAGMENT, "/shaders/defaults/PositionUVNormalTextured.frag"};
-		ShaderInfo vert_info{SHADER_STAGE_VERTEX, "/shaders/defaults/PositionUVNormal.vert"};
-		auto frag = Resources::createShader(frag_info, "frag");
-		auto vert = Resources::createShader(vert_info, "vert");
+		frag.loadGLSL("/shaders/defaults/PositionUVNormalTextured.frag",SHADER_STAGE_FRAGMENT);
+		vert.loadGLSL( "/shaders/defaults/PositionUVNormal.vert",SHADER_STAGE_VERTEX);
 
 		std::vector<VertexAttributeInfo> attribute_infos;
 		//vertex binding
@@ -36,19 +39,18 @@ public:
 		RasterizationPipelineInfo pipeline_info{};
 		pipeline_info.attribute_infos = attribute_infos.data();
 		pipeline_info.attribute_info_count = attribute_infos.size();
-		pipeline_info.fragment_shader = frag;
-		pipeline_info.vertex_shader = vert;
+		pipeline_info.fragment_shader = frag.getHandle();
+		pipeline_info.vertex_shader = vert.getHandle();
 
 		pipeline_info.flags = RASTERIZATION_PIPELINE_FLAG_FRONT_COUNTER_CLOCKWISE | //gltf primitives are counterclockwise
 			RASTERIZATION_PIPELINE_FLAG_ALLOW_EMPTY_DESCRIPTOR;
-		RasterizationPipeline* model_pipeline_2_sided = Resources::createRasterizationPipeline(
-				pipeline_info, "MODEL_PIPELINE_2_SIDED");
+		model_pipeline_2_sided.alloc(pipeline_info);
 		pipeline_info.flags |= RASTERIZATION_PIPELINE_FLAG_CULL_BACK;
-		RasterizationPipeline* model_pipeline = Resources::createRasterizationPipeline(pipeline_info, "MODEL_PIPELINE");
+		model_pipeline.alloc(pipeline_info);
 
 		DefaultModelParserInfo parser_info{};
-		parser_info.graphic_pipeline = model_pipeline;
-		parser_info.graphic_pipeline_2_sided = model_pipeline_2_sided;
+		parser_info.rasterization_pipeline = model_pipeline.getHandle();
+		parser_info.rasterization_pipeline_2_sided = model_pipeline_2_sided.getHandle();
 		parser_info.texture_names.emplace(MODEL_TEXTURE_TYPE_ALBEDO, "albedo");
 		parser_info.material_property_name = "material";
 		DefaultModelParser parser = DefaultModelParser(parser_info);
@@ -59,12 +61,7 @@ public:
 
 		Log::debug("Loading sponza model");
 		model_info.path = "/models/sponza/Sponza.gltf";
-		Model* sponza_model = Resources::createModel(model_info, "sponza");
-
-		Log::debug("Loading beautiful-game model");
-		model_info.path = "/models/beautiful-game/ABeautifulGame.gltf";
-		Model* chess_model = Resources::createModel(model_info, "chess");
-
+		sponza_model.load(model_info);
 
 		//-------------------SCENE CREATION--------------------------------------
 
@@ -73,18 +70,11 @@ public:
 		Camera* camera = camera_entity.attach<Camera>();
 		CameraController* camera_controller = camera_entity.attach<CameraController>();
 		camera_entity.get<Transform>()->translate(vec3(0, 2, 0));
-		camera->setRenderTarget(Graphics::getDefaultRenderTarget());
 		setCameraEntity(camera_entity);
-
-		auto chess = createEntity3D();
-		ModelRenderer* chess_renderer = chess.attach<ModelRenderer>();
-		chess_renderer->model = chess_model;
-		chess.get<Transform>()->setLocalScale(vec3(3));
-		chess.get<Transform>()->translate(vec3(0, 0, 0));
 
 		auto sponza = createEntity3D();
 		ModelRenderer* sponza_renderer = sponza.attach<ModelRenderer>();
-		sponza_renderer->model = sponza_model;
+		sponza_renderer->model = &sponza_model;
 		sponza.get<Transform>()->setLocalScale(vec3(1));
 		sponza.get<Transform>()->translate(vec3(0, 0, 0));
 	}

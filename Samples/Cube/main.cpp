@@ -42,5 +42,5 @@ int main() {
 		//-----------------------TERMINATE------------------
 		//triangle scene deleted here.
 	}
-	app.release();
+	app.terminate();
 }

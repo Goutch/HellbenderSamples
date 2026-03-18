@@ -4,38 +4,45 @@
 using namespace HBE;
 bool fullscreen = false;
 
-void onAppUpdate(float delta) {
-	if (Input::getKeyDown(KEY_ESCAPE)) {
-		Application::quit();
+void onAppUpdate(float delta)
+{
+	Input& input = *Application::instance->getInput();
+	Window& window = *Application::instance->getWindow();
+	if (input.getKeyDown(KEY_ESCAPE))
+	{
+		Application::instance->quit();
 	}
-	if (Input::getKeyDown(KEY_F11)) {
+	if (input.getKeyDown(KEY_F11))
+	{
 		fullscreen = !fullscreen;
-		Graphics::getWindow()->setFullscreen(fullscreen);
+		window.setFullscreen(fullscreen);
 	}
-	if (Input::getKeyDown(KEY_V)) {
+	if (input.getKeyDown(KEY_V))
+	{
 		Configs::setVerticalSync(!Configs::getVerticalSync());
 	}
 }
 
 
-int main() {
+int main()
+{
 	ApplicationInfo app_info{};
-	app_info.vulkan_version = VULKAN_VERSION_1_2;
-	app_info.name = "Instancing";
-
-	Application::init(app_info);
+	app_info.app_name = "Triangle";
+	Application app;
+	app.init(app_info);
 	//-----------------------SETUP--------------------
 	{
 		//-----------------------Games--------------------
-		InstancingScene scene = InstancingScene();
+		InstancingScene instancing_scene;
 		//-----------------------EVENTS------------------
 		event_subscription_id update_subscription_id;
-		Application::onUpdate.subscribe(update_subscription_id,&onAppUpdate);
+		app.onUpdate.subscribe(update_subscription_id, &onAppUpdate);
 		//-----------------------LOOP--------------------
-		Application::run();
+		app.run();
 		//-----------------------CLEANUP------------------
-		Application::onUpdate.unsubscribe(update_subscription_id);
+		app.onUpdate.unsubscribe(update_subscription_id);
 		//-----------------------TERMINATE------------------
+		//triangle scene deleted here.
 	}
-	Application::terminate();
+	app.terminate();
 }
