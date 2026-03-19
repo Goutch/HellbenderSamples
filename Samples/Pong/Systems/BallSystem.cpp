@@ -5,18 +5,19 @@
 #include "BallSystem.h"
 #include "PaddleSystem.h"
 #include "PongGame.h"
+
 namespace Pong {
 	BallSystem::BallSystem(PongGameScene *scene, PongGameState &game_state, AudioClipInstance *bounce_sound, RasterizationTarget *render_target) : System(scene) {
 		this->game_scene = scene;
 		this->game_state = &game_state;
 		this->bounce_sound = bounce_sound;
-		scene->onUpdate.subscribe(update_subscription_id,this, &BallSystem::update);
-		scene->onDraw.subscribe(draw_subscription_id,this, &BallSystem::draw);
-		scene->onAttach<BallComponent>().subscribe(attach_subscription_id,this, &BallSystem::onAttachBallComponent);
-		scene->onDetach<BallComponent>().subscribe(detach_subscription_id,this, &BallSystem::onDetachBallComponent);
+		scene->onUpdate.subscribe(update_subscription_id, this, &BallSystem::update);
+		scene->onDraw.subscribe(draw_subscription_id, this, &BallSystem::draw);
+		scene->onAttach<BallComponent>().subscribe(attach_subscription_id, this, &BallSystem::onAttachBallComponent);
+		scene->onDetach<BallComponent>().subscribe(detach_subscription_id, this, &BallSystem::onDetachBallComponent);
 
 		VertexAttributeInfo vertex_attribute_infos[2]{
-				VertexAttributeInfo{0, sizeof(vec3)+sizeof(vec2), VERTEX_ATTRIBUTE_FLAG_NONE},
+				VertexAttributeInfo{0, sizeof(vec3) + sizeof(vec2), VERTEX_ATTRIBUTE_FLAG_NONE},
 				VertexAttributeInfo{1, sizeof(mat4), VERTEX_ATTRIBUTE_FLAG_PER_INSTANCE}
 		};
 
@@ -24,36 +25,27 @@ namespace Pong {
 		mesh_info.flags = MESH_FLAG_NONE;
 		mesh_info.attribute_infos = vertex_attribute_infos;
 		mesh_info.attribute_info_count = 2;
-		ball_mesh = Resources::createMesh(mesh_info);
+		ball_mesh.alloc(mesh_info);
 
-		Geometry::createQuad(*ball_mesh, 1, 1, VERTEX_FLAG_UV);
+		Geometry::createQuad(ball_mesh, 1, 1, VERTEX_FLAG_UV);
 
-		ShaderInfo shader_info{};
-		shader_info.path = "shaders/defaults/InstancedPositionUV.vert";
-		shader_info.stage = SHADER_STAGE_VERTEX;
-		ball_vertex_shader = Resources::createShader(shader_info);
-
-		shader_info.path = "shaders/defaults/InstancedPositionUVCircle.frag";
-		shader_info.stage = SHADER_STAGE_FRAGMENT;
-		ball_fragment_shader = Resources::createShader(shader_info);
+		ball_vertex_shader.loadGLSL("shaders/defaults/InstancedPositionUV.vert", SHADER_STAGE_VERTEX);
+		ball_fragment_shader.loadGLSL("shaders/defaults/InstancedPositionUVCircle.frag", SHADER_STAGE_FRAGMENT);
 
 		RasterizationPipelineInfo pipeline_info{};
 		pipeline_info.flags = RASTERIZATION_PIPELINE_FLAG_CULL_BACK;
-		pipeline_info.vertex_shader = ball_vertex_shader;
-		pipeline_info.fragment_shader = ball_fragment_shader;
+		pipeline_info.vertex_shader = ball_vertex_shader.getHandle();
+		pipeline_info.fragment_shader = ball_fragment_shader.getHandle();
 		pipeline_info.attribute_infos = vertex_attribute_infos;
 		pipeline_info.attribute_info_count = 2;
-		pipeline_info.rasterization_target = render_target;
+		pipeline_info.rasterization_target = render_target->getHandle();
 
-		ball_pipeline = Resources::createRasterizationPipeline(pipeline_info);
+		ball_pipeline.alloc(pipeline_info);
+		ball_pipeline.allocInstance(ball_pipeline_instance);
 
-		RasterizationPipelineInstanceInfo pipeline_instance_info{};
-		pipeline_instance_info.rasterization_pipeline = ball_pipeline;
-		pipeline_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
-		ball_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
 
-		vec4 color = {0xfa/255.0f, 0xbd/255.0f, 0x2f/255.0f, 1};
-		ball_pipeline_instance->setUniform("material", &color);
+		vec4 color = {0xfa / 255.0f, 0xbd / 255.0f, 0x2f / 255.0f, 1};
+		ball_pipeline_instance.setUniform("material", &color);
 	}
 
 	struct PaddleData {
@@ -98,28 +90,28 @@ namespace Pong {
 		bool delete_ball = false;
 		vec2 delete_pos = vec2(0, 0);
 		float delete_radius = 1;
-		if (Input::getKey(KEY_MOUSE_BUTTON_LEFT)) {
-			vec2 create_pos = Input::getNormalizedMousePosition();
+		if (input.getKey(KEY_MOUSE_BUTTON_LEFT)) {
+			vec2 create_pos = input.getNormalizedMousePosition();
 			create_pos -= vec2(0.5f, 0.5f);
 			create_pos.y *= -1;
 			Camera2D *camera = game_scene->getCameraEntity().get<Camera2D>();
-			create_pos.x *= camera->aspectRatio();
+			create_pos.x *= camera->getAspectRatio();
 			create_pos.x *= camera->getZoomRatio();
 			create_pos.y *= camera->getZoomRatio();
 			game_scene->createBall(create_pos, vec2(Random::floatRange(-10, 10), Random::floatRange(-10, 10)));
 		}
-		if (Input::getKey(KEY_MOUSE_BUTTON_RIGHT)) {
+		if (input.getKey(KEY_MOUSE_BUTTON_RIGHT)) {
 			delete_ball = true;
-			delete_pos = Input::getNormalizedMousePosition();
+			delete_pos = input.getNormalizedMousePosition();
 			delete_pos -= vec2(0.5f, 0.5f);
 			delete_pos.y *= -1;
 			Camera2D *camera = game_scene->getCameraEntity().get<Camera2D>();
-			delete_pos.x *= camera->aspectRatio();
+			delete_pos.x *= camera->getAspectRatio();
 			delete_pos.x *= camera->getZoomRatio();
 			delete_pos.y *= camera->getZoomRatio();
 		}
 
-		if (Input::getKeyDown(KEY_P)) {
+		if (input.getKeyDown(KEY_P)) {
 			paused = !paused;
 		}
 		if (paused) {
@@ -198,11 +190,12 @@ namespace Pong {
 
 	void BallSystem::draw(RenderGraph *render_graph) {
 		if (!paused)
-			ball_mesh->setInstanceBuffer(1, ball_transforms.data(), ball_transforms.size());
+			ball_mesh.setInstanceBuffer(1, ball_transforms.data(), ball_transforms.size());
 
 		DrawCmdInfo draw_cmd_info{};
-		draw_cmd_info.mesh = ball_mesh;
-		draw_cmd_info.pipeline_instance = ball_pipeline_instance;
+		draw_cmd_info.mesh = ball_mesh.getHandle();
+		draw_cmd_info.pipeline_instance_handle = ball_pipeline_instance.getHandle();
+		draw_cmd_info.pipeline_instance_handle = ball_pipeline.getHandle();
 		draw_cmd_info.flags = DRAW_CMD_FLAG_NONE;
 
 		render_graph->add(draw_cmd_info);
@@ -213,11 +206,6 @@ namespace Pong {
 		scene->onDraw.unsubscribe(draw_subscription_id);
 		scene->onAttach<BallComponent>().unsubscribe(attach_subscription_id);
 		scene->onDetach<BallComponent>().unsubscribe(detach_subscription_id);
-		delete ball_mesh;
-		delete ball_vertex_shader;
-		delete ball_fragment_shader;
-		delete ball_pipeline_instance;
-		delete ball_pipeline;
 	}
 
 	void BallSystem::onAttachBallComponent(Entity entity) {

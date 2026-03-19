@@ -6,7 +6,7 @@ namespace Pong {
 
 
 	void PongUIScene::OnWindowSizeChange(Window *window) {
-		render_target->setResolution(window->getWidth(), window->getHeight());
+		render_target.setResolution(window->getSize());
 		score_left_entity.get<Transform>()->setPosition(vec3((window->getWidth() / 4.0), window->getHeight() - 20, 0));
 		score_right_entity.get<Transform>()->setPosition(vec3(((window->getWidth() * 3) / 4.0), window->getHeight() - 20, 0));
 
@@ -14,11 +14,11 @@ namespace Pong {
 		score_right_entity.get<Transform>()->setLocalScale(vec3(SCORE_TEXT_SIZE, SCORE_TEXT_SIZE, 1));
 	}
 
-	Entity PongUIScene::createScore(RasterizationPipelineInstance *pipeline_instance, Mesh *text) {
+	Entity PongUIScene::createScore(PipelineInstance &pipeline_instance, Mesh *text) {
 		Entity score = createEntity3D();
 		MeshRenderer *score_renderer = score.attach<MeshRenderer>();
-		score_renderer->pipeline_instance = pipeline_instance;
-		score_renderer->mesh = text;
+		score_renderer->pipeline_instance = pipeline_instance.getHandle();
+		score_renderer->mesh = text->getHandle();
 		score_renderer->ordered = true;
 		score.get<Transform>()->setLocalScale(vec3(SCORE_TEXT_SIZE, SCORE_TEXT_SIZE, 1));
 
@@ -34,29 +34,24 @@ namespace Pong {
 
 		this->onUpdate.subscribe(update_subscription_id, this, &PongUIScene::updateUI);
 
-		Graphics::getWindow()->onSizeChange.subscribe(on_window_size_change_subscription_id, this, &PongUIScene::OnWindowSizeChange);
+		window.onSizeChange.subscribe(on_window_size_change_subscription_id, this, &PongUIScene::OnWindowSizeChange);
 	}
 
 	PongUIScene::~PongUIScene() {
 		this->onUpdate.unsubscribe(update_subscription_id);
-		Graphics::getWindow()->onSizeChange.unsubscribe(on_window_size_change_subscription_id);
+		window.onSizeChange.unsubscribe(on_window_size_change_subscription_id);
 
-		delete score_left_mesh;
-		delete score_right_mesh;
-		delete left_text_pipeline_instance;
-		delete right_text_pipeline_instance;
 		delete fps_counter;
-		delete render_target;
 	}
 
 
 	void PongUIScene::createResources() {
-		RenderTargetInfo render_target_info{};
+		RasterizationTargetInfo render_target_info{};
 		render_target_info.clear_color = vec4(0, 0, 0, 0);
-		render_target_info.width = Graphics::getWindow()->getWidth();
-		render_target_info.height = Graphics::getWindow()->getHeight();
+		render_target_info.width = window.getWidth();
+		render_target_info.height = window.getHeight();
 		render_target_info.flags = RENDER_TARGET_FLAG_CLEAR_COLOR | RENDER_TARGET_FLAG_COLOR_ATTACHMENT;
-		render_target = Resources::createRenderTarget(render_target_info);
+		render_target.alloc(render_target_info);
 
 
 		fps_counter = new FPSCounter(*this, render_target);
@@ -69,23 +64,23 @@ namespace Pong {
 		score_right_mesh = Geometry::createText(std::to_string(game_state->score_right), *font, 1, 1, TEXT_ALIGNMENT_RIGHT, PIVOT_TOP_RIGHT, text_width, text_height);
 
 
-		RasterizationPipelineInstanceInfo pipeline_instance_info{};
+		PipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.rasterization_pipeline = pipeline;
 		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
 
-		left_text_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
-		right_text_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
+		left_text_pipeline_instance = Resources::createPipelineInstance(pipeline_instance_info);
+		right_text_pipeline_instance = Resources::createPipelineInstance(pipeline_instance_info);
 
-		left_text_pipeline_instance->setUniform("material", &PongGame::LEFT_COLOR);
-		right_text_pipeline_instance->setUniform("material", &PongGame::RIGHT_COLOR);
-		left_text_pipeline_instance->setImage("mtsdf", font->getTextureAtlas());
-		right_text_pipeline_instance->setImage("mtsdf", font->getTextureAtlas());
+		left_text_pipeline_instance.setUniform("material", &PongGame::LEFT_COLOR);
+		right_text_pipeline_instance.setUniform("material", &PongGame::RIGHT_COLOR);
+		left_text_pipeline_instance.setImage("mtsdf", font.getTextureAtlas());
+		right_text_pipeline_instance.setImage("mtsdf", font.getTextureAtlas());
 	}
 
 	void PongUIScene::setupScene() {
 		Entity camera_entity = createEntity3D();
 		PixelCamera *camera = camera_entity.attach<PixelCamera>();
-		camera->setRenderTarget(render_target);
+		camera->render_target = render_target.getHandle();
 
 		score_left_entity = createScore(left_text_pipeline_instance, score_left_mesh);
 		score_right_entity = createScore(right_text_pipeline_instance, score_right_mesh);
@@ -102,12 +97,12 @@ namespace Pong {
 		if (last_score_left != game_state->score_left) {
 			last_score_left = game_state->score_left;
 			float text_height, text_width;
-			Geometry::updateText(*score_left_mesh, std::to_string(game_state->score_left), *font, 1, 1, TEXT_ALIGNMENT_LEFT, PIVOT_TOP_CENTER, text_width, text_height);
+			Geometry::updateText(score_left_mesh, std::to_string(game_state->score_left), *font, 1, 1, TEXT_ALIGNMENT_LEFT, PIVOT_TOP_CENTER, text_width, text_height);
 		}
 		if (last_score_right != game_state->score_right) {
 			last_score_right = game_state->score_right;
 			float text_height, text_width;
-			Geometry::updateText(*score_right_mesh, std::to_string(game_state->score_right), *font, 1, 1, TEXT_ALIGNMENT_RIGHT, PIVOT_TOP_CENTER, text_width, text_height);
+			Geometry::updateText(score_right_mesh, std::to_string(game_state->score_right), *font, 1, 1, TEXT_ALIGNMENT_RIGHT, PIVOT_TOP_CENTER, text_width, text_height);
 		}
 
 	}

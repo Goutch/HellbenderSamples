@@ -22,11 +22,11 @@ namespace Pong {
 		PongGameState *game_state;
 		AudioClipInstance *bounce_sound;
 
-		Mesh *ball_mesh;
-		RasterizationPipelineInstance *ball_pipeline_instance;
-		RasterizationPipeline *ball_pipeline;
-		Shader *ball_vertex_shader;
-		Shader *ball_fragment_shader;
+		Mesh ball_mesh;
+		PipelineInstance ball_pipeline_instance;
+		RasterizationPipeline ball_pipeline;
+		Shader ball_vertex_shader;
+		Shader ball_fragment_shader;
 
 
 		event_subscription_id update_subscription_id;

@@ -22,7 +22,7 @@ public:
 
 	HBE::Mesh *createMesh(const HBE::ModelPrimitiveData &data, HBE::ModelInfo model_info) override;
 
-	HBE::RasterizationPipelineInstance *createMaterial(const HBE::ModelMaterialData &materialData, HBE::Image **textures) override;
+	HBE::PipelineInstance *createMaterial(const HBE::ModelMaterialData &materialData, HBE::Image **textures) override;
 
 	Image *createTexture(const ModelTextureData &data) override;
 

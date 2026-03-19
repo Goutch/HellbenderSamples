@@ -10,7 +10,7 @@ class OrderedRenderingScene : public Scene {
 	Shader *vertex_shader;
 	Shader *fragment_shader;
 	RasterizationPipeline *pipeline;
-	std::vector<RasterizationPipelineInstance *> pipeline_instances;
+	std::vector<PipelineInstance *> pipeline_instances;
 
 
 public:
@@ -32,10 +32,10 @@ public:
 
 	Entity createTriangle(vec3 position, vec4 color) {
 
-		RasterizationPipelineInstanceInfo pipeline_instance_info{};
+		PipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.rasterization_pipeline = pipeline;
 		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_FLAG_NONE;
-		RasterizationPipelineInstance *pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
+		PipelineInstance *pipeline_instance = Resources::createPipelineInstance(pipeline_instance_info);
 
 		pipeline_instances.push_back(pipeline_instance);
 		pipeline_instance->setUniform("material", &color);
@@ -111,7 +111,7 @@ public:
 
 		pipeline = Resources::createRasterizationPipeline(pipeline_info);
 
-		RasterizationPipelineInstanceInfo pipeline_instance_info{};
+		PipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.rasterization_pipeline = pipeline;
 		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_FLAG_NONE;
 	}

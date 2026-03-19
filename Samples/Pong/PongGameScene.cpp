@@ -44,7 +44,7 @@ namespace Pong {
 		return ball;
 	}
 
-	Entity PongGameScene::createPaddle(vec3 position, KEY up_key, KEY down_key, RasterizationPipelineInstance *paddle_pipeline_instance) {
+	Entity PongGameScene::createPaddle(vec3 position, KEY up_key, KEY down_key, PipelineInstance *paddle_pipeline_instance) {
 		Entity paddle = createEntity3D();
 		MeshRenderer *paddle_renderer = paddle.attach<MeshRenderer>();
 		paddle_renderer->mesh = quad_mesh;
@@ -118,12 +118,12 @@ namespace Pong {
 		pipeline_info.rasterization_target = render_target;
 		pipeline = Resources::createRasterizationPipeline(pipeline_info);
 
-		RasterizationPipelineInstanceInfo pipeline_instance_info{};
+		PipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.rasterization_pipeline = pipeline;
 		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
 
-		paddle_left_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
-		paddle_right_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
+		paddle_left_pipeline_instance = Resources::createPipelineInstance(pipeline_instance_info);
+		paddle_right_pipeline_instance = Resources::createPipelineInstance(pipeline_instance_info);
 
 		vec4 color = {1, 1, 1, 1};
 		color = PongGame::LEFT_COLOR;

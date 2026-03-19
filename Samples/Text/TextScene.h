@@ -14,7 +14,7 @@ class TextScene : public Scene {
 	Shader *text_fragment_shader;
 	Mesh *text_mesh;
 	RasterizationPipeline *text_pipeline;
-	RasterizationPipelineInstance *text_pipeline_instance;
+	PipelineInstance *text_pipeline_instance;
 	Font *font;
 	event_subscription_id on_char_down_subscription_id;
 
@@ -91,11 +91,11 @@ private:
 		pipeline_info.flags = RASTERIZATION_PIPELINE_FLAG_NO_DEPTH_TEST;
 		text_pipeline = Resources::createRasterizationPipeline(pipeline_info);
 
-		RasterizationPipelineInstanceInfo pipeline_instance_info{};
+		PipelineInstanceInfo pipeline_instance_info{};
 		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
 
 		pipeline_instance_info.rasterization_pipeline = text_pipeline;
-		text_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
+		text_pipeline_instance = Resources::createPipelineInstance(pipeline_instance_info);
 
 		std::string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};':\",./<>?\\|`~";
 		FontInfo font_info{};

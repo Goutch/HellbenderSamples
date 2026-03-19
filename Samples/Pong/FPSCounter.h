@@ -10,7 +10,7 @@ namespace Pong {
 
 		RasterizationPipeline *text_pipeline;
 
-		RasterizationPipelineInstance *text_pipeline_instance;
+		PipelineInstance *text_pipeline_instance;
 		Entity text_entity;
 
 		Mesh *quad;
@@ -143,11 +143,11 @@ namespace Pong {
 			text_pipeline = Resources::createRasterizationPipeline(pipeline_info);
 
 
-			RasterizationPipelineInstanceInfo pipeline_instance_info{};
+			PipelineInstanceInfo pipeline_instance_info{};
 			pipeline_instance_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
 
 			pipeline_instance_info.rasterization_pipeline = text_pipeline;
-			text_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
+			text_pipeline_instance = Resources::createPipelineInstance(pipeline_instance_info);
 
 			MeshInfo mesh_info{};
 			mesh_info.attribute_info_count = 1;

@@ -12,17 +12,17 @@ namespace Pong {
 	class PongUIScene : public Scene {
 		const float SCORE_TEXT_SIZE = 50.0f;
 		FPSCounter *fps_counter;
-		RasterizationTarget *render_target;
+		RasterizationTarget render_target;
 		PongGameState *game_state;
 
-		Font *font;
-		RasterizationPipeline *pipeline;
+		Font font;
+		RasterizationPipeline pipeline;
 
-		RasterizationPipelineInstance *left_text_pipeline_instance;
-		RasterizationPipelineInstance *right_text_pipeline_instance;
+		PipelineInstance left_text_pipeline_instance;
+		PipelineInstance right_text_pipeline_instance;
 
-		Mesh *score_left_mesh;
-		Mesh *score_right_mesh;
+		Mesh score_left_mesh;
+		Mesh score_right_mesh;
 
 		Entity score_left_entity;
 		Entity score_right_entity;
@@ -42,7 +42,7 @@ namespace Pong {
 
 		void OnWindowSizeChange(Window *window);
 
-		Entity createScore(RasterizationPipelineInstance *pipeline_instance, Mesh *text);
+		Entity createScore(PipelineInstance &pipeline_instance, Mesh *text);
 
 		void createResources();
 

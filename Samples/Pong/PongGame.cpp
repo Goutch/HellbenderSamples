@@ -11,29 +11,29 @@ namespace Pong {
 	}
 
 	PongGame::PongGame() {
-		Application::onPresent.subscribe(present_subscription_id, this, &Pong::PongGame::onPresent);
+		Application::instance->onPresent.subscribe(present_subscription_id, this, &Pong::PongGame::onPresent);
 		reset(game_state);
 		ui_scene = new PongUIScene(game_state);
 		game_scene = new PongGameScene(game_state);
 	}
 
 	PongGame::~PongGame() {
-		Application::onPresent.unsubscribe(present_subscription_id);
+		Application::instance->onPresent.unsubscribe(present_subscription_id);
 		delete ui_scene;
 		delete game_scene;
 	}
 
 	void PongGame::onPresent() {
-		std::vector<Image *> present_images;
-		if (game_scene->isActive() && game_scene->getMainCameraTexture() != nullptr) {
+		std::vector<ImageHandle> present_images;
+		if (game_scene->isActive() && game_scene->getMainCameraTexture() != HBE_NULL_HANDLE) {
 			present_images.push_back(game_scene->getMainCameraTexture());
 		}
-		if (ui_scene != nullptr && ui_scene->isActive() && ui_scene->getMainCameraTexture() != nullptr) {
+		if (ui_scene != nullptr && ui_scene->isActive() && ui_scene->getMainCameraTexture() != HBE_NULL_HANDLE) {
 			present_images.push_back(ui_scene->getMainCameraTexture());
 		}
 		PresentCmdInfo present_info{};
 		present_info.image_count = present_images.size();
 		present_info.images = present_images.data();
-		Graphics::present(present_info);
+		Application::instance->getContext()->cmdPresent(present_info);
 	}
 }
