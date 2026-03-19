@@ -68,7 +68,7 @@ public:
 		//Create camera
 		Entity camera_entity = createEntity3D();
 		Camera* camera = camera_entity.attach<Camera>();
-		//CameraController* camera_controller = camera_entity.attach<CameraController>();
+		CameraController* camera_controller = camera_entity.attach<CameraController>();
 		camera_entity.get<Transform>()->translate(vec3(0, 2, 0));
 		setCameraEntity(camera_entity);
 

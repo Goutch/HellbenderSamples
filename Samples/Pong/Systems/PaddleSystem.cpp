@@ -10,10 +10,10 @@ namespace Pong {
 		for (auto [entity, transform, paddle]: group) {
 			vec3 position = transform.position();
 			vec3 new_position = position;
-			if (Input::getKey(paddle.up_key)) {
+			if (input.getKey(paddle.up_key)) {
 				new_position.y += paddle.speed * delta;
 			}
-			if (Input::getKey(paddle.down_key)) {
+			if (input.getKey(paddle.down_key)) {
 				new_position.y -= paddle.speed * delta;
 			}
 

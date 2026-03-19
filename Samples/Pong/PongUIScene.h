@@ -7,46 +7,46 @@
 using namespace HBE;
 
 namespace Pong {
-	struct PongGameState;
+    struct PongGameState;
 
-	class PongUIScene : public Scene {
-		const float SCORE_TEXT_SIZE = 50.0f;
-		FPSCounter *fps_counter;
-		RasterizationTarget render_target;
-		PongGameState *game_state;
+    class PongUIScene : public Scene {
+        const float SCORE_TEXT_SIZE = 50.0f;
+        FPSCounter *fps_counter;
+        RasterizationTarget render_target;
+        PongGameState *game_state;
 
-		Font font;
-		RasterizationPipeline pipeline;
+        Font *font;
+        RasterizationPipeline *pipeline;
 
-		PipelineInstance left_text_pipeline_instance;
-		PipelineInstance right_text_pipeline_instance;
+        PipelineInstance left_text_pipeline_instance;
+        PipelineInstance right_text_pipeline_instance;
 
-		Mesh score_left_mesh;
-		Mesh score_right_mesh;
+        Mesh score_left_mesh;
+        Mesh score_right_mesh;
 
-		Entity score_left_entity;
-		Entity score_right_entity;
+        Entity score_left_entity;
+        Entity score_right_entity;
 
-		uint32_t last_score_left = 0;
-		uint32_t last_score_right = 0;
+        uint32_t last_score_left = 0;
+        uint32_t last_score_right = 0;
 
 
-		event_subscription_id update_subscription_id;
-		event_subscription_id on_window_size_change_subscription_id;
-	public:
-		void updateUI(float delta);
+        event_subscription_id update_subscription_id;
+        event_subscription_id on_window_size_change_subscription_id;
 
-		PongUIScene(PongGameState &game_state);
+    public:
+        void updateUI(float delta);
 
-		~PongUIScene() override;
+        PongUIScene(PongGameState &game_state);
 
-		void OnWindowSizeChange(Window *window);
+        ~PongUIScene() override;
 
-		Entity createScore(PipelineInstance &pipeline_instance, Mesh *text);
+        void OnWindowSizeChange(Window *window);
 
-		void createResources();
+        Entity createScore(PipelineInstance &pipeline_instance, Mesh *text);
 
-		void setupScene();
-	};
+        void createResources();
+
+        void setupScene();
+    };
 }
-
