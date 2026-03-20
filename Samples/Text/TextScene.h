@@ -10,92 +10,77 @@ class TextScene : public Scene {
 	                       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};':\",./<>?\\|`~\n"
 	                       "You can try to type something now...or zoom in/out\n";
 
-	Shader *text_vertex_shader;
-	Shader *text_fragment_shader;
-	Mesh *text_mesh;
-	RasterizationPipeline *text_pipeline;
-	PipelineInstance *text_pipeline_instance;
-	Font *font;
+	Shader text_vertex_shader;
+	Shader text_fragment_shader;
+	Mesh text_mesh;
+	RasterizationPipeline text_pipeline;
+	PipelineInstance text_pipeline_instance;
+	Font font;
 	event_subscription_id on_char_down_subscription_id;
 
 	void onCharacterInput(char codepoint) {
 		text_str += codepoint;
-		float total_width;
-		float total_height;
-		Geometry::updateText(*text_mesh,
+		vec2 size;
+		Geometry::updateText(context,text_mesh.getHandleRef(),
 		                     text_str,
-		                     *font,
+		                     font,
 		                     1.0,
 		                     0.5,
 		                     TEXT_ALIGNMENT_CENTER,
 		                     PIVOT_CENTER,
-		                     total_width,
-		                     total_height);
+		                     size);
 
 	}
 
 	void update(float delta) {
 		Scene::update(delta);
 
-		if (Input::getKeyDown(KEY_ENTER)) {
+		if (input.getKeyDown(KEY_ENTER)) {
 			onCharacterInput(static_cast<char>('\n'));
 		}
-		if (Input::getKeyDown(KEY_BACKSPACE)) {
+		if (input.getKeyDown(KEY_BACKSPACE)) {
 			text_str.pop_back();
-			float total_width;
-			float total_height;
-			Geometry::updateText(*text_mesh,
+			vec2 size;
+			Geometry::updateText(context,text_mesh.getHandleRef(),
 			                     text_str,
-			                     *font,
+			                     font,
 			                     1.0,
 			                     0.5,
 			                     TEXT_ALIGNMENT_CENTER,
 			                     PIVOT_CENTER,
-			                     total_width,
-			                     total_height);
+			                     size);
 		}
-		if (Input::getKey(KEY_LEFT)) {
+		if (input.getKey(KEY_LEFT)) {
 			getCameraEntity().get<Transform>()->translate(vec3(-1 * delta, 0, 0));
 		}
-		if (Input::getKey(KEY_RIGHT)) {
+		if (input.getKey(KEY_RIGHT)) {
 			getCameraEntity().get<Transform>()->translate(vec3(1 * delta, 0, 0));
 		}
-		if (Input::getKey(KEY_UP)) {
+		if (input.getKey(KEY_UP)) {
 			getCameraEntity().get<Transform>()->translate(vec3(0, 1 * delta, 0));
 		}
-		if (Input::getKey(KEY_DOWN)) {
+		if (input.getKey(KEY_DOWN)) {
 			getCameraEntity().get<Transform>()->translate(vec3(0, -1 * delta, 0));
 		}
 
-		getCameraEntity().get<Camera2D>()->setZoomRatio(getCameraEntity().get<Camera2D>()->getZoomRatio() + Input::getMouseWheelInput());
+		getCameraEntity().get<Camera2D>()->setZoomRatio(getCameraEntity().get<Camera2D>()->getZoomRatio() + input.getMouseWheelInput());
 	}
 
 private:
 	void createResources() {
-		ShaderInfo vertex_shader_info{};
-		ShaderInfo fragment_shader_info{};
-		vertex_shader_info.stage = SHADER_STAGE_VERTEX;
-		fragment_shader_info.stage = SHADER_STAGE_FRAGMENT;
 
-		vertex_shader_info.path = "shaders/defaults/TextMSDF.vert";
-		fragment_shader_info.path = "shaders/defaults/TextMSDF.frag";
-		text_vertex_shader = Resources::createShader(vertex_shader_info);
-		text_fragment_shader = Resources::createShader(fragment_shader_info);
+		text_vertex_shader.loadGLSL("shaders/defaults/TextMSDF.vert",SHADER_STAGE_VERTEX);
+		text_fragment_shader.loadGLSL("shaders/defaults/TextMSDF.frag",SHADER_STAGE_FRAGMENT);
 
 		RasterizationPipelineInfo pipeline_info{};
 		pipeline_info.attribute_info_count = 1;
 
 		pipeline_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D_UV_INTERLEAVED;
-		pipeline_info.vertex_shader = text_vertex_shader;
-		pipeline_info.fragment_shader = text_fragment_shader;
+		pipeline_info.vertex_shader = text_vertex_shader.getHandle();
+		pipeline_info.fragment_shader = text_fragment_shader.getHandle();
 		pipeline_info.flags = RASTERIZATION_PIPELINE_FLAG_NO_DEPTH_TEST;
-		text_pipeline = Resources::createRasterizationPipeline(pipeline_info);
-
-		PipelineInstanceInfo pipeline_instance_info{};
-		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
-
-		pipeline_instance_info.rasterization_pipeline = text_pipeline;
-		text_pipeline_instance = Resources::createPipelineInstance(pipeline_instance_info);
+		text_pipeline.alloc(pipeline_info);
+		text_pipeline.allocInstance(text_pipeline_instance);
 
 		std::string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};':\",./<>?\\|`~";
 		FontInfo font_info{};
@@ -104,22 +89,20 @@ private:
 		font_info.characters_count = characters.size();
 		font_info.glyph_resolution = 64;
 
-		font = Resources::createFont(font_info);
+		font.load(font_info);
 
-		text_pipeline_instance->setImage("mtsdf", font->getTextureAtlas());
-		float total_width;
-		float total_height;
-		text_mesh = Geometry::createText(text_str,
-		                                 *font,
+		text_pipeline_instance.setImage("mtsdf", font.getTextureAtlas()->getHandle());
+		vec2 size;
+		Geometry::updateText(context,text_mesh.getHandleRef(),text_str,
+		                                 font,
 		                                 1.0,
 		                                 0.5,
 		                                 TEXT_ALIGNMENT_CENTER,
 		                                 PIVOT_CENTER,
-		                                 total_width,
-		                                 total_height);
+		                                 size);
 
 		vec4 color = vec4(1, 1, 1, 1);
-		text_pipeline_instance->setUniform("material", &color);
+		text_pipeline_instance.setUniform("material", &color);
 	}
 
 	void setupScene() {
@@ -132,25 +115,19 @@ private:
 		MeshRenderer *text_renderer = text_entity.attach<MeshRenderer>();
 		text_renderer->ordered = true;
 		text_renderer->layer = 0;
-		text_renderer->pipeline_instance = text_pipeline_instance;
-		text_renderer->mesh = text_mesh;
+		text_renderer->pipeline_instance = text_pipeline_instance.getHandle();
+		text_renderer->mesh = text_mesh.getHandle();
 	}
 
 public:
 	TextScene() {
 		createResources();
 		setupScene();
-		Input::onCharDown.subscribe(on_char_down_subscription_id, this, &TextScene::onCharacterInput);
+		input.onCharDown.subscribe(on_char_down_subscription_id, this, &TextScene::onCharacterInput);
 	}
 
 	~TextScene() {
-		Input::onCharDown.unsubscribe(on_char_down_subscription_id);
-		delete text_vertex_shader;
-		delete text_fragment_shader;
-		delete text_pipeline_instance;
-		delete text_pipeline;
-		delete font;
-		delete text_mesh;
+		input.onCharDown.unsubscribe(on_char_down_subscription_id);
 	}
 
 
