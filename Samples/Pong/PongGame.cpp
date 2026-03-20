@@ -25,13 +25,13 @@ namespace Pong {
 
 	void PongGame::onPresent() {
 		std::vector<ImageHandle> present_images;
-		//if (ui_scene != nullptr && ui_scene->isActive() && ui_scene->getMainCameraTexture() != HBE_NULL_HANDLE) {
-		//	present_images.push_back(ui_scene->getMainCameraTexture());
-		//}
+
 		if (game_scene->isActive() && game_scene->getMainCameraTexture() != HBE_NULL_HANDLE) {
 			present_images.push_back(game_scene->getMainCameraTexture());
 		}
-
+		if (ui_scene != nullptr && ui_scene->isActive() && ui_scene->getMainCameraTexture() != HBE_NULL_HANDLE) {
+			present_images.push_back(ui_scene->getMainCameraTexture());
+		}
 		PresentCmdInfo present_info{};
 		present_info.image_count = present_images.size();
 		present_info.images = present_images.data();
