@@ -95,6 +95,7 @@ namespace Pong {
 			create_pos -= vec2(0.5f, 0.5f);
 			create_pos.y *= -1;
 			Camera2D *camera = game_scene->getCameraEntity().get<Camera2D>();
+
 			create_pos.x *= camera->getAspectRatio();
 			create_pos.x *= camera->getZoomRatio();
 			create_pos.y *= camera->getZoomRatio();
@@ -195,7 +196,7 @@ namespace Pong {
 		DrawCmdInfo draw_cmd_info{};
 		draw_cmd_info.mesh = ball_mesh.getHandle();
 		draw_cmd_info.pipeline_instance_handle = ball_pipeline_instance.getHandle();
-		draw_cmd_info.pipeline_instance_handle = ball_pipeline.getHandle();
+		draw_cmd_info.rasterization_pipeline_handle = ball_pipeline.getHandle();
 		draw_cmd_info.flags = DRAW_CMD_FLAG_NONE;
 
 		render_graph->add(draw_cmd_info);
