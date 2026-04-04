@@ -36,56 +36,56 @@ struct Frame {
 struct GBufferResources {
 	std::vector<CameraProperties> history_camera;
 	//raytracer
-	std::vector<Image *> history_albedo;
-	std::vector<Image *> history_normal_depth;
-	std::vector<Image *> history_motion;
-	std::vector<Image *> history_irradiance;
-	std::vector<Image *> history_position;
+	std::vector<Image> history_albedo;
+	std::vector<Image> history_normal_depth;
+	std::vector<Image> history_motion;
+	std::vector<Image> history_irradiance;
+	std::vector<Image> history_position;
 	//denoiser
-	Image *denoiser_temporal_accumulation_texture = nullptr;
-	Image *denoiser_irradiance_vertical_blur_texture = nullptr;
+	Image denoiser_temporal_accumulation_texture;
+	Image denoiser_irradiance_vertical_blur_texture;
 };
 
 struct RaytracerResources {
-	RaytracingPipelineInstance *pipeline_instance;
-	RaytracingPipeline *pipeline;
-	Shader *raygen_shader;
-	std::vector<Shader *> miss_shaders;
-	std::vector<Shader *> hit_shaders;
+	PipelineInstance pipeline_instance;
+	RaytracingPipeline pipeline;
+	Shader raygen_shader;
+	std::vector<Shader> miss_shaders;
+	std::vector<Shader> hit_shaders;
 	std::vector<RaytracingShaderGroup> shader_groups;
-	std::vector<Image *> st_blue_noise;
+	std::vector<Image> st_blue_noise;
 };
 
 struct SceneResources {
-	RootAccelerationStructure *root_acceleration_structure;
-	AABBAccelerationStructure *aabb_acceleration_structure;
+	RootAccelerationStructure root_acceleration_structure;
+	AABBAccelerationStructure aabb_acceleration_structure;
 	std::vector<AccelerationStructureInstance> acceleration_structure_instances;
 	std::vector<InstanceInfo> instances;
-	StorageBuffer *instance_buffer;
+	StorageBuffer instance_buffer;
 
 	std::vector<MaterialData> materials;
-	StorageBuffer *material_buffer;
+	StorageBuffer material_buffer;
 
 	//deleted in model parser
-	std::vector<Mesh *> meshes;
-	std::vector<StorageBuffer *> normals;
-	std::vector<StorageBuffer *> indices;
-	std::vector<StorageBuffer *> uvs;
-	std::vector<Image *> textures;
-	std::vector<MeshAccelerationStructure *> mesh_acceleration_structures;
+	std::vector<Mesh> meshes;
+	std::vector<StorageBuffer> normals;
+	std::vector<StorageBuffer> indices;
+	std::vector<StorageBuffer> uvs;
+	std::vector<Image> textures;
+	std::vector<MeshAccelerationStructure> mesh_acceleration_structures;
 };
 
 struct DenoisingResources {
-	Shader *temporal_accumulation_shader = nullptr;
-	ComputePipeline *temporal_accumulation_pipeline = nullptr;
-	ComputeInstance *temporal_accumulation_instance = nullptr;
+	Shader temporal_accumulation_shader;
+	ComputePipeline temporal_accumulation_pipeline;
+	PipelineInstance temporal_accumulation_instance;
 
-	Shader *vertical_blur_shader = nullptr;
-	ComputePipeline *vertical_blur_pipeline = nullptr;
-	ComputeInstance *vertical_blur_instance = nullptr;
+	Shader vertical_blur_shader;
+	ComputePipeline vertical_blur_pipeline;
+	PipelineInstance vertical_blur_instance;
 
-	Shader *horizontal_blur_shader = nullptr;
-	ComputePipeline *horizontal_blur_pipeline = nullptr;
-	ComputeInstance *horizontal_blur_instance = nullptr;
+	Shader horizontal_blur_shader;
+	ComputePipeline horizontal_blur_pipeline;
+	PipelineInstance horizontal_blur_instance;
 
 };

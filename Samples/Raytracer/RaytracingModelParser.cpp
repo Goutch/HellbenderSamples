@@ -1,17 +1,15 @@
 
 #include "RaytracingModelParser.h"
 
-RaytracingModelParser::RaytracingModelParser(const RaytracingModelParserInfo &info) : HBE::DefaultModelParser({MESH_FLAG_GENERATE_ATTRIBUTE_STORAGE_BUFFER}) {
+RaytracingModelParser::RaytracingModelParser(const RaytracingModelParserInfo &info) : HBE::DefaultModelParser({MESH_FLAG_USED_AS_STORAGE_BUFFER | MESH_FLAG_USED_IN_RAYTRACING}) {
 	this->info = info;
 }
-
-HBE::Mesh *RaytracingModelParser::createMesh(const HBE::ModelPrimitiveData &data, HBE::ModelInfo model_info) {
-	Mesh *mesh = DefaultModelParser::createMesh(data, model_info);
+MeshHandle RaytracingModelParser::createMesh(const ModelPrimitiveData& data, ModelInfo model_info)  {
+	MeshHandle mesh = DefaultModelParser::createMesh(data, model_info);
 	info.meshes->push_back(mesh);
 	return mesh;
 }
-
-HBE::PipelineInstance *RaytracingModelParser::createMaterial(const HBE::ModelMaterialData &materialData, HBE::Image **textures) {
+PipelineInstanceHandle RaytracingModelParser::createMaterial(const ModelMaterialData &materialData, ImageHandle *textures) {
 	MaterialData material;
 	material.albedo = materialData.properties.base_color;
 	material.emission = materialData.properties.emmisive_factor;
@@ -22,7 +20,7 @@ HBE::PipelineInstance *RaytracingModelParser::createMaterial(const HBE::ModelMat
 		material.normal_texture_index = texture_index_offset + materialData.normal_texture;
 
 	info.materials->push_back(material);
-	return nullptr; //graphic pipeline is unused
+	return HBE_NULL_HANDLE; //raster pipeline is unused
 }
 
 HBE::Image *RaytracingModelParser::createTexture(const HBE::ModelTextureData &data) {
@@ -55,6 +53,8 @@ AccelerationStructureInstance RaytracingModelParser::createAccelerationStructure
 	instance.custom_index = material_index_offset + node.primitives[primitive].material;
 	return instance;
 }
+
+
 
 
 
