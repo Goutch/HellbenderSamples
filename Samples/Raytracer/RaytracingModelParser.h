@@ -3,13 +3,13 @@
 
 #include "HBE.h"
 #include "DataStructures.h"
-
+using namespace HBE;
 struct RaytracingModelParserInfo {
 	int mesh_shader_group_index;
-	std::vector<ImageHandle> *textures;
-	std::vector<MaterialData> *materials;
-	std::vector<MeshHandle> *meshes;
-	std::vector<MeshAccelerationStructureHandle> *acceleration_structures;
+	std::vector<ImageHandle> *textures = nullptr;
+	std::vector<MaterialData> *materials = nullptr;
+	std::vector<MeshHandle> *meshes = nullptr;
+	std::vector<MeshAccelerationStructureHandle> *acceleration_structures = nullptr;
 };
 
 class RaytracingModelParser : public HBE::DefaultModelParser {
@@ -28,9 +28,7 @@ public:
 
 	void onStartParsingModel(HBE::Model *model) override;
 
-	MeshAccelerationStructureHandle createMeshAccelerationStructure(Mesh &mesh, int mesh_index);
-
-private:
+	MeshAccelerationStructureHandle createMeshAccelerationStructure(MeshHandle mesh, int mesh_index) override;
 	AccelerationStructureInstance createAccelerationStructureInstance(ModelNode &node, int primitive) override;
 
 };

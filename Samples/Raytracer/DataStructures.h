@@ -2,6 +2,7 @@
 #pragma once
 
 #include "HBE.h"
+#include "core/resource/raytracing/AABBAccelerationStructure.h"
 
 struct MaterialData {
 	vec4 albedo;
@@ -36,11 +37,11 @@ struct Frame {
 struct GBufferResources {
 	std::vector<CameraProperties> history_camera;
 	//raytracer
-	std::vector<Image> history_albedo;
-	std::vector<Image> history_normal_depth;
-	std::vector<Image> history_motion;
-	std::vector<Image> history_irradiance;
-	std::vector<Image> history_position;
+	std::vector<ImageHandle> history_albedo;
+	std::vector<ImageHandle> history_normal_depth;
+	std::vector<ImageHandle> history_motion;
+	std::vector<ImageHandle> history_irradiance;
+	std::vector<ImageHandle> history_position;
 	//denoiser
 	Image denoiser_temporal_accumulation_texture;
 	Image denoiser_irradiance_vertical_blur_texture;
@@ -50,10 +51,18 @@ struct RaytracerResources {
 	PipelineInstance pipeline_instance;
 	RaytracingPipeline pipeline;
 	Shader raygen_shader;
-	std::vector<Shader> miss_shaders;
-	std::vector<Shader> hit_shaders;
+	Shader miss_shader;
+	Shader closest_hit_aabb;
+	Shader closest_hit_mesh;
+	Shader any_hit_alpha_clip;
+	Shader intersection_box;
+	Shader intersection_sphere;
+
+	std::vector<ShaderHandle> miss_shader_handles;
+	std::vector<ShaderHandle> hit_shader_handles;
 	std::vector<RaytracingShaderGroup> shader_groups;
-	std::vector<Image> st_blue_noise;
+	std::vector<ImageHandle> st_blue_noise;
+
 };
 
 struct SceneResources {
@@ -67,12 +76,12 @@ struct SceneResources {
 	StorageBuffer material_buffer;
 
 	//deleted in model parser
-	std::vector<Mesh> meshes;
-	std::vector<StorageBuffer> normals;
-	std::vector<StorageBuffer> indices;
-	std::vector<StorageBuffer> uvs;
-	std::vector<Image> textures;
-	std::vector<MeshAccelerationStructure> mesh_acceleration_structures;
+	std::vector<MeshHandle> meshes;
+	std::vector<BufferHandle> normals;
+	std::vector<BufferHandle> indices;
+	std::vector<BufferHandle> uvs;
+	std::vector<ImageHandle > textures;
+	std::vector<MeshAccelerationStructureHandle > mesh_acceleration_structures;
 };
 
 struct DenoisingResources {

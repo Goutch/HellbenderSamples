@@ -12,14 +12,14 @@ void RaytracingScene::render() {
 	gbuffer_resources.history_camera[frame.index % HISTORY_COUNT] = {camera_view, camera_projection};
 
 	///--------------------------------RAYTRACING--------------------------------///
-	raytracer->traceRays(frame, gbuffer_resources, scene_resources.root_acceleration_structure);
+	raytracer.traceRays(frame, gbuffer_resources, &scene_resources.root_acceleration_structure);
 
 	//--------------------------------DENOISING--------------------------------/
 	if (render_mode >= BLURRED_IRRADIANCE) {
-		denoiser->blurIrradiance(frame, gbuffer_resources);
+		denoiser.blurIrradiance(frame, gbuffer_resources);
 	}
 	if (render_mode >= ACCUMULATED) {
-		denoiser->accumulate(frame, gbuffer_resources);
+		denoiser.accumulate(frame, gbuffer_resources);
 	}
 	frame.index++;
 }
@@ -51,8 +51,9 @@ void RaytracingScene::loadAssets() {
 	model_info.parser = model_parser;
 	model_info.path = "/models/sponza/Sponza.gltf";
 
-	sponza_model = Resources::createModel(model_info);
+	sponza_model.load(model_info);
 
+	delete model_parser;
 }
 
 void RaytracingScene::createScene() {
@@ -62,7 +63,7 @@ void RaytracingScene::createScene() {
 	transform_aabb_floor = glm::scale(transform_aabb_floor, vec3(1000, 1, 1000));
 
 	//todo: create a single bottom level acceleration structure from mesh inside the model
-	std::vector<AccelerationStructureInstance> sponza_acceleration_structure_instances = sponza_model->getAccelerationStructureInstances();
+	std::vector<AccelerationStructureInstance> sponza_acceleration_structure_instances = sponza_model.getAccelerationStructureInstances();
 	scene_resources.acceleration_structure_instances.insert(scene_resources.acceleration_structure_instances.end(), sponza_acceleration_structure_instances.begin(),
 	                                                        sponza_acceleration_structure_instances.end());
 
@@ -74,7 +75,7 @@ void RaytracingScene::createScene() {
 
 	Entity camera_entity = createEntity3D();
 	camera_entity.attach<Camera>();
-	camera_entity.get<Camera>()->setRenderTarget(Graphics::getDefaultRenderTarget());
+	//camera_entity.get<Camera>().setRenderTarget(Graphics::getDefaultRenderTarget());
 	camera_entity.get<Camera>()->active = false;
 	camera_entity.get<Transform>()->translate(vec3(0, 1, 0));
 	camera_entity.get<Transform>()->rotate(vec3(0, 2.1416, 0));
@@ -85,10 +86,8 @@ void RaytracingScene::createScene() {
 }
 
 RaytracingScene::RaytracingScene() {
-	raytracer = new Raytracer(HISTORY_COUNT);
-	denoiser = new Denoiser(HISTORY_COUNT);
 
-	createGBuffer(Graphics::getDefaultRenderTarget()->getResolution().x, Graphics::getDefaultRenderTarget()->getResolution().y);
+	createGBuffer(window.getSize().x, window.getSize().y);
 
 	loadAssets();
 	createScene();
@@ -96,73 +95,72 @@ RaytracingScene::RaytracingScene() {
 	AABBAccelerationStructureInfo aabb__acceleration_structure_info{};
 	aabb__acceleration_structure_info.max = vec3(0.5, 0.5, 0.5);
 	aabb__acceleration_structure_info.min = vec3(-0.5, -0.5, -0.5);
-	scene_resources.aabb_acceleration_structure = Resources::createAABBAccelerationStructure(aabb__acceleration_structure_info);
+	scene_resources.aabb_acceleration_structure.alloc(aabb__acceleration_structure_info);
 
 	RootAccelerationStructureInfo root_acceleration_structure_info{};
-	root_acceleration_structure_info.aabb_acceleration_structures = &scene_resources.aabb_acceleration_structure;
+	root_acceleration_structure_info.aabb_acceleration_structures = &scene_resources.aabb_acceleration_structure.getHandleRef();
 	root_acceleration_structure_info.aabb_acceleration_structure_count = 1;
 	root_acceleration_structure_info.mesh_acceleration_structures = scene_resources.mesh_acceleration_structures.data();
 	root_acceleration_structure_info.mesh_acceleration_structure_count = scene_resources.mesh_acceleration_structures.size();
 	root_acceleration_structure_info.instances = scene_resources.acceleration_structure_instances.data();
 	root_acceleration_structure_info.instance_count = scene_resources.acceleration_structure_instances.size();
 
-	scene_resources.root_acceleration_structure = Resources::createRootAccelerationStructure(root_acceleration_structure_info);
+	scene_resources.root_acceleration_structure.alloc(root_acceleration_structure_info);
 
-	StorageBufferInfo material_storage_buffer_info{};
+	BufferInfo material_storage_buffer_info{};
 	material_storage_buffer_info.stride = sizeof(MaterialData);
 	material_storage_buffer_info.count = scene_resources.materials.size();
-	material_storage_buffer_info.flags = STORAGE_BUFFER_FLAG_NONE;
-	scene_resources.material_buffer = Resources::createStorageBuffer(material_storage_buffer_info);
-	scene_resources.material_buffer->update(scene_resources.materials.data());
+	material_storage_buffer_info.optional_data = scene_resources.materials.data();
+	material_storage_buffer_info.flags = BUFFER_FLAG_NONE;
+	scene_resources.material_buffer.alloc(material_storage_buffer_info);
 
 	std::vector<InstanceInfo> instance_infos;
 	for (uint32_t i = 0; i < scene_resources.acceleration_structure_instances.size(); ++i) {
 		instance_infos.push_back({scene_resources.acceleration_structure_instances[i].custom_index, i, 16});
 	}
-	StorageBufferInfo instances_storage_buffer_info{};
+	BufferInfo instances_storage_buffer_info{};
 	instances_storage_buffer_info.stride = sizeof(InstanceInfo);
 	instances_storage_buffer_info.count = instance_infos.size();
-	instances_storage_buffer_info.flags = STORAGE_BUFFER_FLAG_NONE;
-	scene_resources.instance_buffer = Resources::createStorageBuffer(instances_storage_buffer_info);
-	scene_resources.instance_buffer->update(instance_infos.data());
+	instances_storage_buffer_info.optional_data = instance_infos.data();
+	instances_storage_buffer_info.flags = BUFFER_FLAG_NONE;
+	scene_resources.instance_buffer.alloc(instances_storage_buffer_info);
 
 
 	for (uint32_t i = 0; i < scene_resources.meshes.size(); i++) {
-		scene_resources.normals.push_back(scene_resources.meshes[i]->getAttributeStorageBuffer(2));
-		scene_resources.indices.push_back(scene_resources.meshes[i]->getIndicesStorageBuffer());
-		scene_resources.uvs.push_back(scene_resources.meshes[i]->getAttributeStorageBuffer(1));
+		Handle handle;
+		context.getMeshAttributeBuffer(scene_resources.meshes[i],2,handle);
+		scene_resources.normals.push_back(handle);
+		context.getMeshAttributeBuffer(scene_resources.meshes[i],1,handle);
+		scene_resources.uvs.push_back(handle);
+		context.getMeshIndicesBuffer(scene_resources.meshes[i],handle);
+		scene_resources.indices.push_back(handle);
+
 	}
 
-	raytracer->setGBufferUniforms(gbuffer_resources);
-	raytracer->setSceneUniforms(scene_resources);
+	raytracer.setGBufferUniforms(gbuffer_resources);
+	raytracer.setSceneUniforms(scene_resources);
 
-	denoiser->setGBufferUniforms(gbuffer_resources);
-	denoiser->setSceneUniforms(scene_resources);
+	denoiser.setGBufferUniforms(gbuffer_resources);
+	denoiser.setSceneUniforms(scene_resources);
 
-	Graphics::getDefaultRenderTarget()->onResolutionChange.subscribe(on_resolution_change_subscription_id, this, &RaytracingScene::onResolutionChange);
+	window.onSizeChange.subscribe(on_resolution_change_subscription_id, this, &RaytracingScene::onResolutionChange);
 }
 
 void RaytracingScene::destroyGBuffer() {
-	for (Image *albedo: gbuffer_resources.history_albedo) {
-		delete albedo;
+	for (ImageHandle albedo: gbuffer_resources.history_albedo) {
+		context.releaseImage(albedo);
 	}
-	for (Image *normal_depth: gbuffer_resources.history_normal_depth) {
-		delete normal_depth;
+	for (ImageHandle normal_depth: gbuffer_resources.history_normal_depth) {
+		context.releaseImage(normal_depth);
 	}
-	for (Image *motion: gbuffer_resources.history_motion) {
-		delete motion;
+	for (ImageHandle motion: gbuffer_resources.history_motion) {
+		context.releaseImage(motion);
 	}
-	for (Image *irradiance: gbuffer_resources.history_irradiance) {
-		delete irradiance;
+	for (ImageHandle irradiance: gbuffer_resources.history_irradiance) {
+		context.releaseImage(irradiance);
 	}
-	for (Image *position: gbuffer_resources.history_position) {
-		delete position;
-	}
-	if (gbuffer_resources.denoiser_irradiance_vertical_blur_texture != nullptr) {
-		delete gbuffer_resources.denoiser_irradiance_vertical_blur_texture;
-	}
-	if (gbuffer_resources.denoiser_temporal_accumulation_texture != nullptr) {
-		delete gbuffer_resources.denoiser_temporal_accumulation_texture;
+	for (ImageHandle position: gbuffer_resources.history_position) {
+		context.releaseImage(position);
 	}
 
 	gbuffer_resources.history_albedo.clear();
@@ -185,32 +183,28 @@ void RaytracingScene::createGBuffer(uint32_t width, uint32_t height) {
 	info.sampler_info.flags = IMAGE_SAMPLER_FLAG_NONE;
 
 	for (uint32_t i = 0; i < HISTORY_COUNT; i++) {
-		gbuffer_resources.history_albedo.push_back(Resources::createImage(info));
-		gbuffer_resources.history_normal_depth.push_back(Resources::createImage(info));
-		gbuffer_resources.history_irradiance.push_back(Resources::createImage(info));
-		gbuffer_resources.history_motion.push_back(Resources::createImage(info));
-		gbuffer_resources.history_position.push_back(Resources::createImage(info));
+		gbuffer_resources.history_albedo.push_back(Image::create(info));
+		gbuffer_resources.history_normal_depth.push_back(Image::create(info));
+		gbuffer_resources.history_irradiance.push_back(Image::create(info));
+		gbuffer_resources.history_motion.push_back(Image::create(info));
+		gbuffer_resources.history_position.push_back(Image::create(info));
 	}
 
-	gbuffer_resources.denoiser_temporal_accumulation_texture = Resources::createImage(info);
-	gbuffer_resources.denoiser_irradiance_vertical_blur_texture = Resources::createImage(info);
+	gbuffer_resources.denoiser_temporal_accumulation_texture.alloc(info);
+	gbuffer_resources.denoiser_irradiance_vertical_blur_texture.alloc(info);
 }
 
-void RaytracingScene::onResolutionChange(RasterizationTarget *rt) {
-	createGBuffer(rt->getResolution().x, rt->getResolution().y);
-
-
-	Camera *camera = getCameraEntity().get<Camera>();
-	camera->setRenderTarget(rt);
+void RaytracingScene::onResolutionChange(Window *window) {
+	createGBuffer(window->getSize().x, window->getSize().y);
 }
 
-Image *RaytracingScene::getMainCameraTexture() {
+ImageHandle RaytracingScene::getMainCameraTexture() {
 	switch (render_mode) {
 		case BLURRED_IRRADIANCE:
 			return gbuffer_resources.history_irradiance[(frame.index - 1) % HISTORY_COUNT];
 			break;
 		case ACCUMULATED:
-			return gbuffer_resources.denoiser_temporal_accumulation_texture;
+			return gbuffer_resources.denoiser_temporal_accumulation_texture.getHandle();
 			break;
 		case IRRADIANCE:
 			return gbuffer_resources.history_irradiance[(frame.index - 1) % HISTORY_COUNT];
@@ -230,76 +224,76 @@ Image *RaytracingScene::getMainCameraTexture() {
 void RaytracingScene::update(float delta) {
 	Scene::update(delta);
 
-	if (Input::getKeyDown(KEY_NUMBER_1)) {
+	if (input.getKeyDown(KEY_NUMBER_1)) {
 		render_mode = ACCUMULATED;
 	}
-	if (Input::getKeyDown(KEY_NUMBER_2)) {
+	if (input.getKeyDown(KEY_NUMBER_2)) {
 		render_mode = BLURRED_IRRADIANCE;
 	}
-	if (Input::getKeyDown(KEY_NUMBER_3)) {
+	if (input.getKeyDown(KEY_NUMBER_3)) {
 		render_mode = IRRADIANCE;
 	}
-	if (Input::getKeyDown(KEY_NUMBER_4)) {
+	if (input.getKeyDown(KEY_NUMBER_4)) {
 		render_mode = ALBEDO;
 	}
-	if (Input::getKeyDown(KEY_NUMBER_5)) {
+	if (input.getKeyDown(KEY_NUMBER_5)) {
 		render_mode = NORMAL;
 	}
-	if (Input::getKey(KEY_NUMBER_7)) {
+	if (input.getKey(KEY_NUMBER_7)) {
 		frame.gamma -= delta;
 		Log::message("Gamma:" + std::to_string(frame.gamma));
 	}
-	if (Input::getKey(KEY_NUMBER_8)) {
+	if (input.getKey(KEY_NUMBER_8)) {
 		frame.gamma += delta;
 		Log::message("Gamma:" + std::to_string(frame.gamma));
 	}
-	if (Input::getKey(KEY_NUMBER_9)) {
+	if (input.getKey(KEY_NUMBER_9)) {
 		frame.exposure -= delta;
 		Log::message("Exposure:" + std::to_string(frame.exposure));
 	}
-	if (Input::getKey(KEY_NUMBER_0)) {
+	if (input.getKey(KEY_NUMBER_0)) {
 		frame.exposure += delta;
 		Log::message("Exposure:" + std::to_string(frame.exposure));
 	}
-	if (Input::getKeyDown(KEY_N)) {
+	if (input.getKeyDown(KEY_N)) {
 		frame.use_blue_noise = uint32_t(!bool(frame.use_blue_noise));
 	}
 
-	if (Input::getKeyDown(KEY_P)) {
+	if (input.getKeyDown(KEY_P)) {
 		paused = !paused;
 	}
-	if (Input::getKey(KEY_MINUS)) {
+	if (input.getKey(KEY_MINUS)) {
 		frame.scattering_multiplier -= 5.0f * delta;
 		Log::message("Scattering multiplier:" + std::to_string(frame.scattering_multiplier));
 	}
-	if (Input::getKey(KEY_EQUAL)) {
+	if (input.getKey(KEY_EQUAL)) {
 		frame.scattering_multiplier += 5.0f * delta;
 
 		Log::message("Scattering multiplier:" + std::to_string(frame.scattering_multiplier));
 	}
-	if (Input::getKey(KEY_LEFT_BRACKET)) {
+	if (input.getKey(KEY_LEFT_BRACKET)) {
 		frame.density_falloff -= 5.0f * delta;
 		Log::message("Density falloff:" + std::to_string(frame.density_falloff));
 	}
-	if (Input::getKey(KEY_RIGHT_BRACKET)) {
+	if (input.getKey(KEY_RIGHT_BRACKET)) {
 		frame.density_falloff += 5.0f * delta;
 		Log::message("Density falloff:" + std::to_string(frame.density_falloff));
 	}
-	if (Input::getKeyDown(KEY_UP)) {
+	if (input.getKeyDown(KEY_UP)) {
 		frame.sample_count++;
 		Log::message("Sample count:" + std::to_string(frame.sample_count));
 	}
-	if (Input::getKeyDown(KEY_DOWN)) {
+	if (input.getKeyDown(KEY_DOWN)) {
 		if (frame.sample_count > 0) {
 			frame.sample_count--;
 		}
 		Log::message("Sample count:" + std::to_string(frame.sample_count));
 	}
-	if (Input::getKeyDown(KEY_RIGHT)) {
+	if (input.getKeyDown(KEY_RIGHT)) {
 		frame.max_bounces++;
 		Log::message("Max bounces:" + std::to_string(frame.max_bounces));
 	}
-	if (Input::getKeyDown(KEY_LEFT)) {
+	if (input.getKeyDown(KEY_LEFT)) {
 		if (frame.max_bounces > 0) {
 			frame.max_bounces--;
 		}
@@ -311,18 +305,9 @@ void RaytracingScene::update(float delta) {
 }
 
 RaytracingScene::~RaytracingScene() {
-	Graphics::getDefaultRenderTarget()->onResolutionChange.unsubscribe(on_resolution_change_subscription_id);
-	delete raytracer;
-	delete denoiser;
+	window.onSizeChange.unsubscribe(on_resolution_change_subscription_id);
+
 	destroyGBuffer();
-
-	//SCENE
-	delete scene_resources.root_acceleration_structure;
-	delete scene_resources.material_buffer;
-	delete scene_resources.instance_buffer;
-	delete scene_resources.aabb_acceleration_structure;
-
-	delete sponza_model;
 	delete model_parser;
 }
 
