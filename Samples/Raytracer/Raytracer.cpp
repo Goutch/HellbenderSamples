@@ -1,7 +1,7 @@
 #include "Raytracer.h"
 #include "RaytracingScene.h"
 
-Raytracer::Raytracer(uint32_t history_count) :  context(*Application::instance->getContext()) {
+Raytracer::Raytracer(uint32_t history_count) : context(*Application::instance->getContext()) {
 	createPrimaryRaytracingResources(history_count);
 
 	raytracing_resources.pipeline_instance.setImageArray("blue_noise", raytracing_resources.st_blue_noise.data(), raytracing_resources.st_blue_noise.size());
@@ -18,7 +18,7 @@ void Raytracer::traceRays(Frame &frame, GBufferResources &gbuffer_resources, Roo
 	raytracing_resources.pipeline_instance.setUniform("frame", &frame);
 	raytracing_resources.pipeline_instance.setUniform("camera_history", gbuffer_resources.history_camera.data());
 	uvec3 resolution;
-	context.getImageSize(gbuffer_resources.history_albedo[0],resolution);
+	context.getImageSize(gbuffer_resources.history_albedo[0], resolution);
 	TraceRaysCmdInfo trace_rays_cmd_info{};
 	trace_rays_cmd_info.pipeline_instance = raytracing_resources.pipeline_instance.getHandle();
 	trace_rays_cmd_info.resolution = resolution;
@@ -27,7 +27,7 @@ void Raytracer::traceRays(Frame &frame, GBufferResources &gbuffer_resources, Roo
 
 void Raytracer::setGBufferUniforms(GBufferResources &gbuffer_resources) {
 	raytracing_resources.pipeline_instance.setImageArray("historyAlbedo", gbuffer_resources.history_albedo.data(), gbuffer_resources.history_albedo.size());
-	raytracing_resources.pipeline_instance.setImageArray("historyNormalDepth", gbuffer_resources.history_normal_depth.data(),gbuffer_resources.history_normal_depth.size());
+	raytracing_resources.pipeline_instance.setImageArray("historyNormalDepth", gbuffer_resources.history_normal_depth.data(), gbuffer_resources.history_normal_depth.size());
 	raytracing_resources.pipeline_instance.setImageArray("historyMotion", gbuffer_resources.history_motion.data(), gbuffer_resources.history_motion.size());
 	raytracing_resources.pipeline_instance.setImageArray("historyIrradiance", gbuffer_resources.history_irradiance.data(), gbuffer_resources.history_irradiance.size());
 	raytracing_resources.pipeline_instance.setImageArray("historyPosition", gbuffer_resources.history_position.data(), gbuffer_resources.history_position.size());
@@ -45,33 +45,33 @@ void Raytracer::setSceneUniforms(SceneResources &scene_resources) {
 	raytracing_resources.pipeline_instance.setStorageBufferArray("mesh_indices_buffers", scene_resources.indices.data(), scene_resources.indices.size());
 	raytracing_resources.pipeline_instance.setStorageBufferArray("mesh_normals_buffers", scene_resources.normals.data(), scene_resources.normals.size());
 	raytracing_resources.pipeline_instance.setStorageBufferArray("mesh_tex_coords_buffers", scene_resources.uvs.data(), scene_resources.uvs.size());
-	raytracing_resources.pipeline_instance.setStorageBuffer("materials", scene_resources.material_buffer.getHandle(), scene_resources.material_buffer.getCount(),0);
+	raytracing_resources.pipeline_instance.setStorageBuffer("materials", scene_resources.material_buffer.getHandle(), scene_resources.material_buffer.getCount(), 0);
 }
 
 
 void Raytracer::createPrimaryRaytracingResources(uint32_t history_count) {
 	std::string preamble = "#define HISTORY_COUNT " + std::to_string(history_count) + "\n";
 	raytracing_resources.raygen_shader.loadGLSL("shaders/raytracing/raygen/raygen.glsl",
-												SHADER_STAGE_RAY_GEN,
-												preamble.c_str());
+	                                            SHADER_STAGE_RAY_GEN,
+	                                            preamble.c_str());
 	raytracing_resources.miss_shader.loadGLSL("shaders/raytracing/miss/primary_miss.glsl",
-											  SHADER_STAGE_RAY_MISS,
-											  preamble.c_str());
+	                                          SHADER_STAGE_RAY_MISS,
+	                                          preamble.c_str());
 	raytracing_resources.closest_hit_aabb.loadGLSL("shaders/raytracing/closestHit/primary_closest_hit_aabb.glsl",
-											  SHADER_STAGE_CLOSEST_HIT,
-											  preamble.c_str());
+	                                               SHADER_STAGE_CLOSEST_HIT,
+	                                               preamble.c_str());
 	raytracing_resources.closest_hit_mesh.loadGLSL("shaders/raytracing/closestHit/primary_closest_hit_mesh.glsl",
-											  SHADER_STAGE_CLOSEST_HIT,
-											  preamble.c_str());
+	                                               SHADER_STAGE_CLOSEST_HIT,
+	                                               preamble.c_str());
 	raytracing_resources.any_hit_alpha_clip.loadGLSL("shaders/raytracing/anyHit/alpha_clipping_anyhit.glsl",
-											  SHADER_STAGE_ANY_HIT,
-											  preamble.c_str());
+	                                                 SHADER_STAGE_ANY_HIT,
+	                                                 preamble.c_str());
 	raytracing_resources.intersection_box.loadGLSL("shaders/raytracing/intersect/intersect_box.glsl",
-											  SHADER_STAGE_INTERSECTION,
-											  preamble.c_str());
+	                                               SHADER_STAGE_INTERSECTION,
+	                                               preamble.c_str());
 	raytracing_resources.intersection_sphere.loadGLSL("shaders/raytracing/intersect/intersect_sphere.glsl",
-											  SHADER_STAGE_INTERSECTION,
-											  preamble.c_str());
+	                                                  SHADER_STAGE_INTERSECTION,
+	                                                  preamble.c_str());
 
 	raytracing_resources.miss_shader_handles.push_back(raytracing_resources.miss_shader.getHandle());
 	raytracing_resources.hit_shader_handles.push_back(raytracing_resources.closest_hit_aabb.getHandle());
@@ -105,7 +105,8 @@ void Raytracer::createPrimaryRaytracingResources(uint32_t history_count) {
 		raytracing_resources.st_blue_noise.push_back(
 				Image::load(
 						(blue_noise_path + std::to_string(i) + ".png").c_str(),
-						IMAGE_FORMAT_RGBA8_UNORM)
-				);
+						IMAGE_FORMAT_RGBA8_UNORM,
+						IMAGE_FLAG_NO_SAMPLER)
+		);
 	}
 }
