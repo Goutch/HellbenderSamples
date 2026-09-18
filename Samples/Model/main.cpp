@@ -7,6 +7,7 @@ void onAppUpdate(float delta)
 {
 	Input& input = *Application::instance->getInput();
 	Window& window = *Application::instance->getWindow();
+
 	if (input.getKeyDown(KEY_ESCAPE))
 	{
 		Application::instance->quit();
@@ -27,6 +28,7 @@ int main()
 {
 	ApplicationInfo app_info{};
 	app_info.app_name = "Menu";
+	app_info.window_info.startSize = vec2i(1280,720);
 	Application app;
 	app.init(app_info);
 	//-----------------------SETUP--------------------
