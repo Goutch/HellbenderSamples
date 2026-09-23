@@ -33,7 +33,7 @@ int main()
     //-----------------------SETUP--------------------
     {
         //-----------------------Games--------------------
-        TriangleScene triangleScene = TriangleScene();
+        VariableDescriptorScene triangleScene = VariableDescriptorScene();
         //-----------------------EVENTS------------------
         event_subscription_id update_subscription_id;
         app.onUpdate.subscribe(update_subscription_id, &onAppUpdate);

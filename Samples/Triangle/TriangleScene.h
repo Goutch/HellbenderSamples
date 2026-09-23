@@ -4,7 +4,7 @@
 
 using namespace HBE;
 
-class TriangleScene : public Scene {
+class VariableDescriptorScene : public Scene {
     Mesh triangle_mesh;
     Shader vertex_shader;
     Shader fragment_shader;
@@ -18,7 +18,7 @@ class TriangleScene : public Scene {
     };
 
 public:
-    TriangleScene() {
+    VariableDescriptorScene() {
         //--------------------------Create Resources
         MeshInfo triangle_mesh_creation_info{};
         /*

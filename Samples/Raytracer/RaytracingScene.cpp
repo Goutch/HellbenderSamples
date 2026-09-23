@@ -6,7 +6,10 @@ void RaytracingScene::render() {
 	Entity camera_entity = getCameraEntity();
 	if (!paused)
 		frame.time = time;
-
+	uvec3 image_size;
+	context.getImageSize(gbuffer_resources.history_albedo[frame.index % HISTORY_COUNT],image_size);
+	camera_entity.get<Camera>()->calculateAspectRatio(image_size);
+	camera_entity.get<Camera>()->calculateProjection();
 	mat4 camera_projection = camera_entity.get<Camera>()->projection;
 	mat4 camera_view = camera_entity.get<Transform>()->world();
 	gbuffer_resources.history_camera[frame.index % HISTORY_COUNT] = {camera_view, camera_projection};
@@ -52,8 +55,6 @@ void RaytracingScene::loadAssets() {
 	model_info.path = "/models/sponza/Sponza.gltf";
 
 	sponza_model.load(model_info);
-
-	delete model_parser;
 }
 
 void RaytracingScene::createScene() {
@@ -75,7 +76,6 @@ void RaytracingScene::createScene() {
 
 	Entity camera_entity = createEntity3D();
 	camera_entity.attach<Camera>();
-	//camera_entity.get<Camera>().setRenderTarget(Graphics::getDefaultRenderTarget());
 	camera_entity.get<Camera>()->active = false;
 	camera_entity.get<Transform>()->translate(vec3(0, 1, 0));
 	camera_entity.get<Transform>()->rotate(vec3(0, 2.1416, 0));
@@ -128,11 +128,11 @@ RaytracingScene::RaytracingScene() {
 
 	for (uint32_t i = 0; i < scene_resources.meshes.size(); i++) {
 		Handle handle;
-		context.getMeshAttributeBuffer(scene_resources.meshes[i],2,handle);
+		context.getMeshAttributeBuffer(scene_resources.meshes[i], 2, handle);
 		scene_resources.normals.push_back(handle);
-		context.getMeshAttributeBuffer(scene_resources.meshes[i],1,handle);
+		context.getMeshAttributeBuffer(scene_resources.meshes[i], 1, handle);
 		scene_resources.uvs.push_back(handle);
-		context.getMeshIndicesBuffer(scene_resources.meshes[i],handle);
+		context.getMeshIndicesBuffer(scene_resources.meshes[i], handle);
 		scene_resources.indices.push_back(handle);
 
 	}

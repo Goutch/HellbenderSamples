@@ -43,6 +43,7 @@ AccelerationStructureInstance RaytracingModelParser::createAccelerationStructure
 	instance.acceleration_structure_index = mesh_to_acceleration_structure_index[node.mesh] + primitive;
 	instance.transform = node.transform;
 	instance.shader_group_index = info.mesh_shader_group_index;
+	instance.type = ACCELERATION_STRUCTURE_TYPE_MESH;
 	instance.custom_index = material_index_offset + node.primitives[primitive].material;
 	return instance;
 }

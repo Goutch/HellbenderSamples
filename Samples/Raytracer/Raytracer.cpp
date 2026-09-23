@@ -22,6 +22,7 @@ void Raytracer::traceRays(Frame &frame, GBufferResources &gbuffer_resources, Roo
 	TraceRaysCmdInfo trace_rays_cmd_info{};
 	trace_rays_cmd_info.pipeline_instance = raytracing_resources.pipeline_instance.getHandle();
 	trace_rays_cmd_info.resolution = resolution;
+	trace_rays_cmd_info.flags = TRACE_RAYS_CMD_FLAG_NONE;
 	context.cmdTraceRays(trace_rays_cmd_info);
 }
 
