@@ -5,6 +5,7 @@
 class Denoiser {
 
 private :
+	Context &context;
 	DenoisingResources denoiser_resources;
 public:
 	Denoiser(uint32_t history_count);

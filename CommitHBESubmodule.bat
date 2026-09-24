@@ -12,6 +12,18 @@ if "%~1"=="" (
 
 set COMMIT_MESSAGE=%~1
 
+set BRANCH= %~2
+if "%BRANCH%"=="" (
+  for /f "delims=" %%b in (
+    'git config -f .gitmodules submodule.%SUBMODULE_PATH%.branch'
+  ) do set BRANCH=%%b
+)
+
+if "%BRANCH%"=="" (
+  echo No branch specified and no default configured.
+  exit /b 1
+)
+
 :: Check if the submodule exists
 if not exist "%SUBMODULE_PATH%\.git" (
     echo Error: %SUBMODULE_PATH% is not a valid Git submodule.
@@ -21,11 +33,11 @@ if not exist "%SUBMODULE_PATH%\.git" (
 :: Change to the submodule directory
 cd /d "%SUBMODULE_PATH%" || exit /b 1
 
-:: Ensure we are on the master branch
-git checkout master 2>nul
+:: Ensure we are on the %BRANCH% branch
+git checkout %BRANCH% 2>nul
 if %errorlevel% neq 0 (
-    echo Switching to master branch failed. Trying to create it from remote...
-    git checkout -b master origin/master
+    echo Switching to %BRANCH% branch failed. Trying to create it from remote...
+    git checkout -b %BRANCH% origin/%BRANCH%
 )
 
 :: Check for unstaged or uncommitted changes
@@ -38,7 +50,7 @@ if defined NEED_STASH (
 )
 
 :: Pull latest changes from remote with rebase
-git pull --rebase origin master
+git pull --rebase origin %BRANCH%
 if %errorlevel% neq 0 (
     echo Failed to pull latest changes. Resolve conflicts if needed.
     exit /b 1
@@ -55,7 +67,7 @@ git add .
 git commit -m "%COMMIT_MESSAGE%"
 
 :: Push changes
-git push origin master
+git push origin %BRANCH%
 if %errorlevel% neq 0 (
     echo Failed to push submodule changes.
     exit /b 1
@@ -67,7 +79,7 @@ cd /d ..
 :: Stage and commit the updated submodule reference
 git add "%SUBMODULE_PATH%"
 git commit -m "Updated HBE: %COMMIT_MESSAGE%"
-git push origin master
+git push origin %BRANCH%
 
 echo Submodule updated successfully!
 exit /b 0

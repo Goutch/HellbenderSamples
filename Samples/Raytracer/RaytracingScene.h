@@ -43,13 +43,13 @@ private:
 
 	GBufferResources gbuffer_resources;
 	SceneResources scene_resources;
-	Raytracer *raytracer;
-	Denoiser *denoiser;
+	Raytracer raytracer = Raytracer(HISTORY_COUNT);
+	Denoiser denoiser = Denoiser(HISTORY_COUNT);
 	Frame frame{};
 
 	//assets
-	RaytracingModelParser *model_parser;
-	Model *sponza_model;
+	RaytracingModelParser* model_parser;
+	Model sponza_model;
 
 	bool paused = false;
 	float time = 0;
@@ -60,7 +60,7 @@ public:
 
 	void createGBuffer(uint32_t width, uint32_t height);
 
-	void onResolutionChange(RasterizationTarget *rt);
+	void onResolutionChange(Window *window);
 
 	void loadAssets();
 
@@ -68,7 +68,7 @@ public:
 
 	void render() override;
 
-	Image *getMainCameraTexture() override;
+	ImageHandle getMainCameraTexture() override;
 
 	void update(float delta) override;
 

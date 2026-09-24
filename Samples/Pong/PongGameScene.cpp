@@ -1,35 +1,23 @@
-
 #include "PongGameScene.h"
 #include "Systems/BallSystem.h"
 #include "Systems/PaddleSystem.h"
 #include "PongGame.h"
 
 namespace Pong {
-
 	Area &PongGameScene::getArea() {
 		return game_area;
 	}
 
 	PongGameScene::PongGameScene(PongGameState &game_state) : Scene() {
 		createResources();
-		addSystem(new BallSystem(this, game_state, bounce_sound_instance, render_target));
+		addSystem(new BallSystem(this, game_state, &bounce_sound_instance, &render_target));
 		addSystem(new PaddleSystem(this));
 		setupScene();
-		Graphics::getWindow()->onSizeChange.subscribe(on_window_size_change_subscription_id, this, &PongGameScene::OnWindowSizeChange);
+		window.onSizeChange.subscribe(on_window_size_change_subscription_id, this, &PongGameScene::OnWindowSizeChange);
 	}
 
 	PongGameScene::~PongGameScene() {
-
-		Graphics::getWindow()->onSizeChange.unsubscribe(on_window_size_change_subscription_id);
-		delete quad_mesh;
-		delete vertex_shader;
-		delete fragment_shader;
-		delete pipeline;
-		delete paddle_left_pipeline_instance;
-		delete paddle_right_pipeline_instance;
-		delete render_target;
-		delete bounce_sound_instance;
-		delete bounce_sound;
+		window.onSizeChange.unsubscribe(on_window_size_change_subscription_id);
 	}
 
 	Entity PongGameScene::createBall(vec2 position, vec2 velocity) {
@@ -44,12 +32,12 @@ namespace Pong {
 		return ball;
 	}
 
-	Entity PongGameScene::createPaddle(vec3 position, KEY up_key, KEY down_key, RasterizationPipelineInstance *paddle_pipeline_instance) {
+	Entity PongGameScene::createPaddle(vec3 position, KEY up_key, KEY down_key, PipelineInstance *paddle_pipeline_instance) {
 		Entity paddle = createEntity3D();
 		MeshRenderer *paddle_renderer = paddle.attach<MeshRenderer>();
-		paddle_renderer->mesh = quad_mesh;
+		paddle_renderer->mesh = quad_mesh.getHandle();
 		paddle_renderer->layer = 0;
-		paddle_renderer->pipeline_instance = paddle_pipeline_instance;
+		paddle_renderer->pipeline_instance = paddle_pipeline_instance->getHandle();
 
 		PaddleComponent *paddleComponent = paddle.attach<PaddleComponent>();
 		paddleComponent->speed = 10;
@@ -66,8 +54,9 @@ namespace Pong {
 	void PongGameScene::setupScene() {
 		Entity camera_entity = createEntity3D();
 		Camera2D *camera = camera_entity.attach<Camera2D>();
-		camera->setRenderTarget(render_target);
 
+		camera->render_target = render_target.getHandle();
+		setCameraEntity(camera_entity);
 		for (int i = 0; i < 1; ++i) {
 			createBall(vec2(0, 0),
 			           vec2(Random::floatRange(-10, 10), Random::floatRange(-10, 10)));
@@ -76,86 +65,74 @@ namespace Pong {
 		paddle_left_entity = createPaddle(vec3{-game_area.size.x / 2 + 1, 0, 0},
 		                                  KEY_W,
 		                                  KEY_S,
-		                                  paddle_left_pipeline_instance);
+		                                  &paddle_left_pipeline_instance);
 		paddle_right_entity = createPaddle(vec3{game_area.size.x / 2 - 1, 0, 0},
 		                                   KEY_UP,
 		                                   KEY_DOWN,
-		                                   paddle_right_pipeline_instance);
-		onRenderTargetResolutionChange(render_target);
+		                                   &paddle_right_pipeline_instance);
+		onRenderTargetResolutionChange(&render_target);
 	}
 
 	void PongGameScene::createResources() {
-		RenderTargetInfo render_target_info{};
-		render_target_info.width = Graphics::getWindow()->getWidth();
-		render_target_info.height = Graphics::getWindow()->getHeight();
+		RasterizationTargetInfo render_target_info{};
+		render_target_info.width = window.getWidth();
+		render_target_info.height = window.getHeight();
 		render_target_info.flags = RENDER_TARGET_FLAG_COLOR_ATTACHMENT | RENDER_TARGET_FLAG_CLEAR_COLOR;
-		render_target = Resources::createRenderTarget(render_target_info);
+		render_target.alloc(render_target_info);
 
 		MeshInfo mesh_info{};
 		mesh_info.attribute_info_count = 1;
 		mesh_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
-		quad_mesh = Resources::createMesh(mesh_info);
-		Geometry::createQuad(*quad_mesh, 1, 1, VERTEX_FLAG_NONE);
+		quad_mesh.alloc(mesh_info);
+		Geometry::createQuad(quad_mesh, 1, 1, VERTEX_FLAG_NONE);
 
-		ShaderInfo vertex_shader_info{};
-		ShaderInfo fragment_shader_info{};
-
-		vertex_shader_info.path = "shaders/defaults/Position.vert";
-		vertex_shader_info.stage = SHADER_STAGE_VERTEX;
-
-		fragment_shader_info.path = "shaders/defaults/Position.frag";
-		fragment_shader_info.stage = SHADER_STAGE_FRAGMENT;
-
-		vertex_shader = Resources::createShader(vertex_shader_info);
-		fragment_shader = Resources::createShader(fragment_shader_info);
+		vertex_shader.loadGLSL("shaders/defaults/Position.vert", SHADER_STAGE_VERTEX);
+		fragment_shader.loadGLSL("shaders/defaults/Position.frag", SHADER_STAGE_FRAGMENT);
 
 		RasterizationPipelineInfo pipeline_info{};
 		pipeline_info.attribute_info_count = 1;
 		pipeline_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
-		pipeline_info.vertex_shader = vertex_shader;
-		pipeline_info.fragment_shader = fragment_shader;
+		pipeline_info.vertex_shader = vertex_shader.getHandle();
+		pipeline_info.fragment_shader = fragment_shader.getHandle();
 		pipeline_info.flags = RASTERIZATION_PIPELINE_FLAG_NONE;
-		pipeline_info.rasterization_target = render_target;
-		pipeline = Resources::createRasterizationPipeline(pipeline_info);
-
-		RasterizationPipelineInstanceInfo pipeline_instance_info{};
-		pipeline_instance_info.rasterization_pipeline = pipeline;
-		pipeline_instance_info.flags = RASTERIZATION_PIPELINE_INSTANCE_FLAG_NONE;
-
-		paddle_left_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
-		paddle_right_pipeline_instance = Resources::createRasterizationPipelineInstance(pipeline_instance_info);
+		pipeline_info.rasterization_target = render_target.getHandle();
+		pipeline.alloc(pipeline_info);
+		pipeline.allocInstance(paddle_left_pipeline_instance);
+		pipeline.allocInstance(paddle_right_pipeline_instance);
 
 		vec4 color = {1, 1, 1, 1};
 		color = PongGame::LEFT_COLOR;
-		paddle_left_pipeline_instance->setUniform("material", &color);
+		paddle_left_pipeline_instance.setUniform("material", &color);
 		color = PongGame::RIGHT_COLOR;
-		paddle_right_pipeline_instance->setUniform("material", &color);
+		paddle_right_pipeline_instance.setUniform("material", &color);
 
 
 		AudioClipInfo audio_clip_info{};
 		audio_clip_info.path = "sounds/8BitHit.wav";
-		AudioClipInstanceInfo audio_clip_instance_info{};
-		bounce_sound = Resources::createAudioClip(audio_clip_info);
+		bounce_sound.alloc(audio_clip_info);
 
-		audio_clip_instance_info.clip = bounce_sound;
+		AudioClipInstanceInfo audio_clip_instance_info{};
+		audio_clip_instance_info.clip = &bounce_sound;
 		audio_clip_instance_info.volume = 0.1;
 		audio_clip_instance_info.pitch = 1.0f;
-		bounce_sound_instance = Resources::createAudioClipInstance(audio_clip_instance_info);
+		bounce_sound_instance.alloc(audio_clip_instance_info);
 	}
 
 	void PongGameScene::OnWindowSizeChange(Window *window) {
-		render_target->setResolution(window->getWidth(), window->getHeight());
+		render_target.setResolution(window->getSize());
 	}
 
 	void PongGameScene::onRenderTargetResolutionChange(RasterizationTarget *render_target) {
 		Entity camera_entity = getCameraEntity();
 		Camera2D *camera = camera_entity.get<Camera2D>();
-
+		camera->calculateAspectRatio(window.getSize());
 		float height = camera->getZoomRatio();
-		float width = height * camera->aspectRatio();
+		float width = height * camera->getAspectRatio();
 
-		game_area = Area{{-width / 2.0f, -height / 2.0f},
-		                 {width,         height}};
+		game_area = Area{
+				{-width / 2.0f, -height / 2.0f},
+				{width,         height}
+		};
 
 		vec3 paddle_left_position = paddle_left_entity.get<Transform>()->position();
 		vec3 paddle_right_position = paddle_right_entity.get<Transform>()->position();

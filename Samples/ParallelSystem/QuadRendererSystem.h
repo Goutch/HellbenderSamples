@@ -8,12 +8,12 @@ struct QuadRenderer {
 };
 
 class QuadRendererSystem : System {
-	Mesh *quad_mesh;
+	Mesh quad_mesh;
 
-	Shader *vertex_shader;
-	Shader *fragment_shader;
-	RasterizationPipeline *pipeline;
-	RasterizationPipelineInstance *pipeline_instance;
+	Shader vertex_shader;
+	Shader fragment_shader;
+	RasterizationPipeline pipeline;
+	PipelineInstance pipeline_instance;
 	bool active = true;
 	event_subscription_id draw_subscription_id;
 	event_subscription_id update_subscription_id;

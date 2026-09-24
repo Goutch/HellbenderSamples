@@ -3,13 +3,13 @@
 
 #include "HBE.h"
 #include "DataStructures.h"
-
+using namespace HBE;
 struct RaytracingModelParserInfo {
 	int mesh_shader_group_index;
-	std::vector<HBE::Image *> *textures;
-	std::vector<MaterialData> *materials;
-	std::vector<Mesh *> *meshes;
-	std::vector<MeshAccelerationStructure *> *acceleration_structures;
+	std::vector<ImageHandle> *textures = nullptr;
+	std::vector<MaterialData> *materials = nullptr;
+	std::vector<MeshHandle> *meshes = nullptr;
+	std::vector<MeshAccelerationStructureHandle> *acceleration_structures = nullptr;
 };
 
 class RaytracingModelParser : public HBE::DefaultModelParser {
@@ -20,17 +20,15 @@ class RaytracingModelParser : public HBE::DefaultModelParser {
 public:
 	RaytracingModelParser(const RaytracingModelParserInfo &info);
 
-	HBE::Mesh *createMesh(const HBE::ModelPrimitiveData &data, HBE::ModelInfo model_info) override;
+	MeshHandle createMesh(const ModelPrimitiveData& data, ModelInfo model_info) override;
 
-	HBE::RasterizationPipelineInstance *createMaterial(const HBE::ModelMaterialData &materialData, HBE::Image **textures) override;
+	PipelineInstanceHandle createMaterial(const ModelMaterialData& materialData, ImageHandle* textures) override;
 
-	Image *createTexture(const ModelTextureData &data) override;
+	ImageHandle createTexture(const ModelTextureData& data) override;
 
 	void onStartParsingModel(HBE::Model *model) override;
 
-	MeshAccelerationStructure *createMeshAccelerationStructure(Mesh *mesh, int mesh_index) override;
-
-private:
+	MeshAccelerationStructureHandle createMeshAccelerationStructure(MeshHandle mesh, int mesh_index) override;
 	AccelerationStructureInstance createAccelerationStructureInstance(ModelNode &node, int primitive) override;
 
 };

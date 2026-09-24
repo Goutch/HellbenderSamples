@@ -41,16 +41,16 @@ layout (binding = 11, set = 3) uniform sampler2D textures[];
 layout (binding = 12, set = 4, std430) readonly buffer MeshIndicesBuffers
 {
     uint indices[];
-} mesh_indices_buffers[];
+} mesh_indices_buffers[]; //variable descriptor count array
 layout (binding = 13, set = 5, std430) readonly buffer MeshTexCoordsBuffers
 {
     vec2 coords[];
-} mesh_tex_coords_buffers[];
+} mesh_tex_coords_buffers[]; //variable descriptor count array
 
 layout (binding = 14, set = 6, std430) readonly buffer MeshNormalsBuffers
 {
     float normals[];
-} mesh_normals_buffers[];
+} mesh_normals_buffers[]; //variable descriptor count array
 
 #ifdef PRIMARY_PAYLOAD_IN
 layout (location = 0) rayPayloadInEXT PrimaryRayPayLoad

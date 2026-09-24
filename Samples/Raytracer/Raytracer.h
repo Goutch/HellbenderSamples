@@ -6,6 +6,8 @@
 class RaytracingScene;
 
 class Raytracer {
+
+	Context &context;
 	RaytracingScene *scene;
 	RaytracerResources raytracing_resources;
 public:
@@ -23,4 +25,5 @@ public:
 
 private:
 	void createPrimaryRaytracingResources(uint32_t history_count);
+
 };

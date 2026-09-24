@@ -14,17 +14,17 @@ namespace Pong {
 	class PongGameScene : public Scene {
 		Area game_area;
 
-		Mesh *quad_mesh;
-		Shader *vertex_shader;
-		Shader *fragment_shader;
-		RasterizationPipeline *pipeline;
-		RasterizationPipelineInstance *paddle_left_pipeline_instance;
-		RasterizationPipelineInstance *paddle_right_pipeline_instance;
+		Mesh quad_mesh;
+		Shader vertex_shader;
+		Shader fragment_shader;
+		RasterizationPipeline pipeline;
+		PipelineInstance paddle_left_pipeline_instance;
+		PipelineInstance paddle_right_pipeline_instance;
 		Entity paddle_left_entity;
 		Entity paddle_right_entity;
-		RasterizationTarget *render_target;
-		AudioClip *bounce_sound;
-		AudioClipInstance *bounce_sound_instance;
+		RasterizationTarget render_target;
+		AudioClip bounce_sound;
+		AudioClipInstance bounce_sound_instance;
 
 		event_subscription_id on_window_size_change_subscription_id;
 	public:
@@ -42,7 +42,7 @@ namespace Pong {
 
 		void onRenderTargetResolutionChange(RasterizationTarget *render_target);
 
-		Entity createPaddle(vec3 position, KEY up_key, KEY down_key, RasterizationPipelineInstance *paddle_pipeline_instance);
+		Entity createPaddle(vec3 position, KEY up_key, KEY down_key, PipelineInstance *paddle_pipeline_instance);
 
 
 	public:
