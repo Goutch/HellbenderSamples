@@ -9,6 +9,15 @@ Raytracer::Raytracer(uint32_t history_count) : context(*Application::instance->g
 
 
 Raytracer::~Raytracer() {
+	for (int i = 0; i < raytracing_resources.miss_shader_handles.size(); ++i) {
+		context.releaseShader(raytracing_resources.miss_shader_handles[i]);
+	}
+	for (int i = 0; i < raytracing_resources.hit_shader_handles.size(); ++i) {
+		context.releaseShader(raytracing_resources.hit_shader_handles[i]);
+	}
+	for (int i = 0; i < raytracing_resources.st_blue_noise.size(); ++i) {
+		context.releaseImage(raytracing_resources.st_blue_noise[i]);
+	}
 	raytracing_resources.miss_shader_handles.clear();
 	raytracing_resources.hit_shader_handles.clear();
 	raytracing_resources.st_blue_noise.clear();
