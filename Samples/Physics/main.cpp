@@ -31,7 +31,7 @@ int main() {
 	//-----------------------SETUP--------------------
 	{
 		//-----------------------SCENE INIT--------------------
-		PhysicsScene cube_scene = PhysicsScene();
+		PhysicsScene physics_scene = PhysicsScene();
 		//-----------------------EVENTS------------------
 		event_subscription_id update_subscription_id;
 		app.onUpdate.subscribe(update_subscription_id, &onAppUpdate);
