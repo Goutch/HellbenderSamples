@@ -1,6 +1,6 @@
 [submodule "HBE"]
 	path = HBE
 	url = https://github.com/Goutch/HellbenderEngine
-	branch = develop
+	branch = master
 [submodule "path/to/submodule"]
 	branch = master
