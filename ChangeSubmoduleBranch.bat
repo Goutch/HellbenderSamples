@@ -1,6 +1,6 @@
 set BRANCH= %~1
 
-git submodule set-branch --branch %BRANCH% path/to/submodule
+git submodule set-branch --branch %BRANCH% HBE
 
 git submodule sync
 git add .gitmodules
