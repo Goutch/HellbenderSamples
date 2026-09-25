@@ -1,21 +1,23 @@
 #pragma once
-#include "HBE/core/scene/ecs/Component.h"
-#include "HBE/core/scene/System.h"
+#include "HBE/HBE.h"
 #include "box3d/box3d.h"
 using namespace HBE;
 
-struct RigidBody {
-    COMPONENT_IDS(QuadRenderer)
-};
+struct RigidBody;
 
-struct Collider
-{
-    COMPONENT_IDS(Collider)
-};
+class PhysicsSystem : public System {
+	float fixed_step = 1.0f / 60.0f;
+	float timeSinceLastStep = 0;
+	b3WorldId world_id;
+	event_subscription_id attach_subscription;
+	event_subscription_id detach_subscription;
+	event_subscription_id update_subscription;
 
-class PhysicsSystem : HBE::System
-{
-    b3WorldId world_id;
+public:
+	PhysicsSystem(Scene *scene);
+	void update(float deltaTime);
 
-    PhysicsSystem(Scene* scene);
+	void onRigidBodyAttached(Entity entity);
+	void onRigidBodyDetached(Entity entity);
+	~PhysicsSystem();
 };

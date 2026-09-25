@@ -9,12 +9,15 @@ add_executable(${PROJECT_NAME}
         main.cpp
         PhysicsSystem.cpp
         PhysicsSystem.h
+        RigidBody.cpp
+        RigidBody.h
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC HBE PUBLIC box3d)
 target_include_directories(${PROJECT_NAME}
-        PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/box3d"
-        PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+        PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/box3d/include/"
+        PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
+        PUBLIC "${HBE_INCLUDE_DIR}")
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
