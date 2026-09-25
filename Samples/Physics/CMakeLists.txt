@@ -6,6 +6,8 @@ project(Physics CXX)
 add_subdirectory(dependencies/box3d)
 
 add_executable(${PROJECT_NAME}
+        InstancedMeshRendererSystem.cpp
+        InstancedMeshRenderer.cpp
         main.cpp
         PhysicsSystem.cpp
         PhysicsSystem.h
@@ -25,4 +27,4 @@ set_target_properties(${PROJECT_NAME}
         RUNTIME_OUTPUT_DIRECTORY ${HBE_OUTPUT_DIR}
         )
 
-#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${HBE_OUTPUT_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${HBE_OUTPUT_DIR})

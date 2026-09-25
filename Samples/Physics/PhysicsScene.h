@@ -2,6 +2,8 @@
 #include "RigidBody.h"
 #include "HBE/HBE.h"
 #include "HBE/core/scene/systems/CameraControllerSystem.h"
+#include "InstancedMeshRenderer.h"
+#include "InstancedMeshRendererSystem.h"
 
 using namespace HBE;
 
@@ -10,33 +12,49 @@ class PhysicsScene : public Scene {
 	Shader fragment_shader;
 	Shader vertex_shader;
 	RasterizationPipeline pipeline;
-	PipelineInstance red_pipeline_instance;
-	PipelineInstance gray_pipeline_instance;
+	PipelineInstance pipeline_instance;
 	PhysicsSystem *physics_system;
-
+	InstancedMeshRendererSystem *instanced_mesh_renderer_system;
+	Handle instance_cube_entry;
+	float last_spawn_time = 0.0f;
+	float firerate = 0.05f;
 public:
 	void update(float deltaTime) {
 		Scene::update(deltaTime);
-		if (input.getKeyDown(KEY::KEY_MOUSE_BUTTON_RIGHT)) {
-			Entity e = createCubeEntity();
-			e.get<Transform>()->setPosition(getCameraEntity().get<Transform>()->position());
-			e.get<RigidBody>()->setVelocity(getCameraEntity().get<Transform>()->worldBackward()*10.0f);
+		last_spawn_time += deltaTime;
+		if (last_spawn_time>firerate && input.getKey(KEY::KEY_MOUSE_BUTTON_RIGHT)) {
+			for (int i = 0; i < 10; ++i) {
+				Entity e = createCubeEntity();
+				e.get<Transform>()->setPosition(getCameraEntity().get<Transform>()->position() + getCameraEntity().get<Transform>()->worldBackward()*2.0f +
+				Random::vec3Range(vec3(-0.5f, -0.5f, -0.5f), vec3(0.5f, 0.5f, 0.5f)));
+				e.get<RigidBody>()->setVelocity(getCameraEntity().get<Transform>()->worldBackward()*Random::floatRange(10.0f, 30.0f));
+			}
+
+			last_spawn_time =0;
 		}
 	}
-	PhysicsScene() {
+	PhysicsScene(): Scene({SCENE_INITIALIZE_SYSTEMS_FLAG_ALL}) {
 		physics_system = new PhysicsSystem(this);
+		instanced_mesh_renderer_system = new InstancedMeshRendererSystem(this);
 		addSystem(physics_system);
-		addSystem(new CameraControllerSystem(this));
+		addSystem(instanced_mesh_renderer_system);
 		createResources();
+
+		instance_cube_entry = instanced_mesh_renderer_system->addInstancedMesh(cube_mesh.getHandle(),
+																			   pipeline_instance.getHandle(),
+																			   sizeof(mat4),
+																			   1);
+
 		setupScene();
+
 	}
 
 	~PhysicsScene() {
 	}
 
 	void createResources() {
-		fragment_shader.loadGLSL("shaders/defaults/Position.frag", SHADER_STAGE_FRAGMENT);
-		vertex_shader.loadGLSL("shaders/defaults/Position.vert", SHADER_STAGE_VERTEX);
+		fragment_shader.loadGLSL("shaders/InstancedBuffer.frag", SHADER_STAGE_FRAGMENT);
+		vertex_shader.loadGLSL("shaders/InstancedBuffer.vert", SHADER_STAGE_VERTEX);
 
 		RasterizationPipelineInfo pipeline_info{};
 		pipeline_info.attribute_info_count = 1;
@@ -46,8 +64,7 @@ public:
 		pipeline_info.vertex_shader = vertex_shader.getHandle();
 
 		pipeline.alloc(pipeline_info);
-		pipeline.allocInstance(red_pipeline_instance);
-		pipeline.allocInstance(gray_pipeline_instance);
+		pipeline.allocInstance(pipeline_instance);
 
 		MeshInfo mesh_info{};
 		mesh_info.attribute_infos = &VERTEX_ATTRIBUTE_INFO_POSITION3D;
@@ -59,9 +76,10 @@ public:
 
 	Entity createCubeEntity() {
 		Entity cube_entity = createEntity3D();
-		MeshRenderer *cube_renderer = cube_entity.attach<MeshRenderer>();
-		cube_renderer->mesh = cube_mesh.getHandle();
-		cube_renderer->pipeline_instance = red_pipeline_instance.getHandle();
+		Transform *transform = cube_entity.get<Transform>();
+		InstancedMeshRenderer *cube_renderer = cube_entity.attach<InstancedMeshRenderer>();
+		cube_renderer->instancing_entry_handle = instance_cube_entry;
+		cube_renderer->instance_buffer_data = &transform->local();
 
 		cube_entity.get<Transform>()->translate(vec3(0, 0, -5));
 		RigidBody *rigid_body = cube_entity.attach<RigidBody>();
@@ -77,8 +95,31 @@ public:
 		ground_entity.get<Transform>()->setLocalScale(vec3(100, 1, 100));
 		ground_entity.get<Transform>()->setPosition(vec3(0, -5, 0));
 		ground_entity.get<RigidBody>()->setDynamic(false);
-		ground_entity.get<RigidBody>()->setShapeBox(vec3(100, 1, 100));
-		ground_entity.get<MeshRenderer>()->pipeline_instance = gray_pipeline_instance.getHandle();
+		ground_entity.get<RigidBody>()->setShapeBox(vec3(50, 0.5, 50));
+
+		Entity wall_entity1 = createCubeEntity();
+		wall_entity1.get<Transform>()->setLocalScale(vec3(1, 10, 100));
+		wall_entity1.get<Transform>()->setPosition(vec3(50, -5, 0));
+		wall_entity1.get<RigidBody>()->setDynamic(false);
+		wall_entity1.get<RigidBody>()->setShapeBox(vec3(0.5, 5, 50));
+
+		Entity wall_entity2 = createCubeEntity();
+		wall_entity2.get<Transform>()->setLocalScale(vec3(1, 10, 100));
+		wall_entity2.get<Transform>()->setPosition(vec3(-50, -5, 0));
+		wall_entity2.get<RigidBody>()->setDynamic(false);
+		wall_entity2.get<RigidBody>()->setShapeBox(vec3(0.5, 5, 50));
+
+		Entity wall_entity3 = createCubeEntity();
+		wall_entity3.get<Transform>()->setLocalScale(vec3(100, 10, 1));
+		wall_entity3.get<Transform>()->setPosition(vec3(0, -5, 50));
+		wall_entity3.get<RigidBody>()->setDynamic(false);
+		wall_entity3.get<RigidBody>()->setShapeBox(vec3(50, 5, 0.5));
+
+		Entity wall_entity4 = createCubeEntity();
+		wall_entity4.get<Transform>()->setLocalScale(vec3(100, 10, 1));
+		wall_entity4.get<Transform>()->setPosition(vec3(0, -5, -50));
+		wall_entity4.get<RigidBody>()->setDynamic(false);
+		wall_entity4.get<RigidBody>()->setShapeBox(vec3(50, 5, 0.5));
 		//cubes
 		for (uint i = 0; i < 1000; i++) {
 			Entity e = createCubeEntity();
@@ -89,10 +130,5 @@ public:
 		Entity camera_entity = createEntity3D();
 		camera_entity.attach<Camera>();
 		camera_entity.attach<CameraController>();
-
-		vec4 c = vec4(1, 0, 0, 1);
-		red_pipeline_instance.setUniform("material", &c);
-		c = vec4(0.2, 0.2, 0.2, 1);
-		gray_pipeline_instance.setUniform("material", &c);
 	}
 };
