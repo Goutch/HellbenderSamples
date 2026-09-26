@@ -21,6 +21,18 @@ class PhysicsScene : public Scene {
 public:
 	void update(float deltaTime) {
 		Scene::update(deltaTime);
+		if(input.getKeyDown(KEY::KEY_C)) {
+			Entity cam = getCameraEntity();
+			if (cam.valid()) {
+				if (cam.has<CameraController>()) {
+					input.setCursorVisible(true);
+					cam.detach<CameraController>();
+				} else {
+					input.setCursorVisible(false);
+					cam.attach<CameraController>();
+				}
+			}
+		}
 		last_spawn_time += deltaTime;
 		if (last_spawn_time>firerate && input.getKey(KEY::KEY_MOUSE_BUTTON_RIGHT)) {
 			for (int i = 0; i < 10; ++i) {
@@ -75,13 +87,15 @@ public:
 	}
 
 	Entity createCubeEntity() {
+		//create an empty entity then attach a transform
 		Entity cube_entity = createEntity3D();
-		Transform *transform = cube_entity.get<Transform>();
+
+		//rendering
 		InstancedMeshRenderer *cube_renderer = cube_entity.attach<InstancedMeshRenderer>();
 		cube_renderer->instancing_entry_handle = instance_cube_entry;
-		cube_renderer->instance_buffer_data = &transform->local();
+		cube_renderer->instance_buffer_data = &cube_entity.get<Transform>()->local();
 
-		cube_entity.get<Transform>()->translate(vec3(0, 0, -5));
+		//add physics
 		RigidBody *rigid_body = cube_entity.attach<RigidBody>();
 		rigid_body->setDynamic(true);
 
@@ -121,14 +135,15 @@ public:
 		wall_entity4.get<RigidBody>()->setDynamic(false);
 		wall_entity4.get<RigidBody>()->setShapeBox(vec3(50, 5, 0.5));
 		//cubes
-		for (uint i = 0; i < 1000; i++) {
+		for (uint i = 0; i < 50; i++) {
 			Entity e = createCubeEntity();
-			e.get<Transform>()->setPosition(vec3(Random::floatRange(-50, 50), Random::floatRange(-5, 5), Random::floatRange(-5, 5)));
+			e.get<Transform>()->setPosition(vec3(Random::floatRange(-25, 25), Random::floatRange(0, 20), Random::floatRange(-25, 25)));
 			e.get<Transform>()->translate(vec3(0, 10, 0));
 		}
 
 		Entity camera_entity = createEntity3D();
 		camera_entity.attach<Camera>();
 		camera_entity.attach<CameraController>();
+		camera_entity.get<Transform>()->setPosition(vec3(0, 0, 50));
 	}
 };
