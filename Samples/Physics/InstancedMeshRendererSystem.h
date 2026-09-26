@@ -20,6 +20,7 @@ class InstancedMeshRendererSystem : public System {
 	HandleProvider instancing_entry_handle_provider;
 	std::vector<InstancingEntry> instancing_entries;
 public:
+	SYSTEM_IDS(InstancedMeshRendererSystem)
 	InstancedMeshRendererSystem(Scene *scene);
 
 	~InstancedMeshRendererSystem();

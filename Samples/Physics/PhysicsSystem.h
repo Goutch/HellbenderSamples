@@ -14,6 +14,7 @@ class PhysicsSystem : public System {
 	event_subscription_id update_subscription;
 
 public:
+	SYSTEM_IDS(PhysicsSystem)
 	PhysicsSystem(Scene *scene);
 	void update(float deltaTime);
 

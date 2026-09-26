@@ -46,10 +46,8 @@ public:
 		}
 	}
 	PhysicsScene(): Scene({SCENE_INITIALIZE_SYSTEMS_FLAG_ALL}) {
-		physics_system = new PhysicsSystem(this);
-		instanced_mesh_renderer_system = new InstancedMeshRendererSystem(this);
-		addSystem(physics_system);
-		addSystem(instanced_mesh_renderer_system);
+		physics_system = addSystem<PhysicsSystem>(this);
+		instanced_mesh_renderer_system = addSystem<InstancedMeshRendererSystem>(this);
 		createResources();
 
 		instance_cube_entry = instanced_mesh_renderer_system->addInstancedMesh(cube_mesh.getHandle(),
